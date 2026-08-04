@@ -1,0 +1,28 @@
+import pygame
+class Itemslot(pygame.sprite.Sprite):
+    def __init__(self,posx, posy):
+        super().__init__()
+        
+        #itemSlot soll ein Item halten können
+        self.item=None
+
+        #Attribute zum anzeigen lassen
+        self.image=pygame.image.load("images/box/boxNormal.png")
+        self.rect=self.image.get_rect()
+        self.rect.x=posx
+        self.rect.y=posy
+        self._layer=1
+    
+    def addItem(self,sprite):
+        self.item=sprite
+        self.item.rect=self.rect
+
+    def checkItem(self):
+        if(self.item==None):
+            return False
+        return True
+
+    def draw(self,screen):
+        screen.blit(self.image,self.rect)
+        if (self.checkItem()):
+            screen.blit(self.item.image, self.item.rect)
