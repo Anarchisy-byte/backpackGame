@@ -1,0 +1,13 @@
+Struktur:
+    Main, items, rucksack, shop, battle, charcter --> Gegner
+
+    Panda Import --> Excel-Datei für Attack, etc.
+
+    items(space,name, value, valueType, cooldown, cooldownstate=True, rarity, cost,sprite) --> Rüstung ist Valuetype="Rüstung", etc
+    rucksack(itemlist[],size, upgrade) --> ändern zu space
+    shop(items)-> refresh, buy,sell,saveItem
+    charcter(rucksack, hp, armor, attack,lv) --> Gegner; spieler(savestate,geld, leben)
+    battle()
+    main()
+
+jscheunert@students.uni-mainz.de
