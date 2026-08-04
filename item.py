@@ -1,13 +1,14 @@
 import pygame
 class item(pygame.sprite.Sprite):
-    def __init__(self, color, width, height, img, posx, posy):
+    def __init__(self, image, name, position:"tuple"):
         super().__init__(self)
-        self.image = pygame.Surface([width, height])
-        self.image.fill(color)
-        self.rect = self.image.get_rect()
-        self.posx=posx
-        self.posy=posy
-        self.img=img
+        self._image = image
+        self.rect = image.get_rect(topleft=position)
+        self.render()
+
     
     def update(self, screen):
-        pass
+        ...
+
+    def render():
+        ...
