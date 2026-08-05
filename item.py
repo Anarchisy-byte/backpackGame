@@ -1,15 +1,29 @@
 import pygame
 class item(pygame.sprite.Sprite):
-    def __init__(self, image, name, posx,posy, cost, rarity, itemtype, itemID, dmgVal, defVal, space_x, space_y):
-        super().__init__(self)
-        self._image = image
+    def createItemSprites():
+        itemSheet=pygame.image.load("images/Items/roguelikeitems.png").convert_alpha()
+        item_texturesize=16
+        item_sprites=[]
+        for row in range(itemSheet.get_width()//item_texturesize):
+            for col in range(itemSheet.get_height()//item_texturesize):
+                x=row*item_texturesize
+                y=col*item_texturesize
+                img=pygame.Rect(x,y, item_texturesize, item_texturesize)
+                sprite_img=itemSheet.subsurface(img)
+                sprite_img=pygame.transform.scale_by(sprite_img,5)
+                item_sprites.append(sprite_img)
+        return item_sprites
+
+    def __init__(self, image, name, posx,posy, cost=0, rarity="", itemtype="", itemID="", dmgVal=0, defVal=0, space_x=1, space_y=1):
+        super().__init__()
+        self.image = image
         self.rect = image.get_rect()
         self.rect.x=posx
         self.rect.y=posy
 
         #Itemspezifische Eigenschaften
         self.cost=cost
-        self.rarity=ratity
+        self.rarity=rarity
         self.itemtype=itemtype
         self.itemID=itemID
         self.dmgVal=dmgVal
