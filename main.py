@@ -3,6 +3,7 @@ from pygame.locals import *
 import item
 import Itemslot
 import backpack
+import shop
 import os
 
 #Einstellungen für Lokales laufen des Programms
@@ -13,13 +14,12 @@ print("XAUTHORITY =", os.environ.get("XAUTHORITY"))
 pygame.init()
 #Mouse Position wird getracked um Objekte an die richtigen Stellen zu platzieren
 MousePos=pygame.font.Font(None,36)
-screen=pygame.display.set_mode((1280,720))
+screen=pygame.display.set_mode((1920,1280))
 clock=pygame.time.Clock()
 
-
 #Testen Anzeigen eines Items
-TestBackpack=backpack.backpack(3,2,50,50)
-
+TestBackpack=backpack.backpack(3,2,100,600)
+TestShop=shop.shop(950,800)
 
 
 running=True
@@ -36,6 +36,7 @@ while running:
     screen.blit(MousePos_surface, (10,10))
 
     TestBackpack.draw(screen)
+    TestShop.draw(screen)
     
     pygame.display.flip()
 

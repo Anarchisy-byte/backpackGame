@@ -6,8 +6,12 @@ import item_import
 
 class shop(pygame.sprite.Sprite):
 
-    def __init__(self, posx, posy, listItemSlots):
+    def __init__(self, posx, posy, listItemSlots=[Itemslot.Itemslot() for i in range(5)]):
         self.listItemSlots=listItemSlots
+        self.image=pygame.image.load("images/shop.jpg")
+        self.rect=self.image.get_rect()
+        self.rect.x=posx
+        self.rect.y=posy
         abstand=120
         for i,itemSlot in enumerate(self.listItemSlots):
             itemSlot.rect.x=posx +i*abstand
@@ -16,3 +20,8 @@ class shop(pygame.sprite.Sprite):
     def fillItem(self, indexSlot, item):
         self.listItemSlots[indexSlot].addItem(item)
         #self.listItemSlots[indexSlot].draw(screen)
+
+    def draw(self,screen):
+        screen.blit(self.image,self.rect)
+        for item_Slot in self.listItemSlots:
+            item_Slot.draw(screen)

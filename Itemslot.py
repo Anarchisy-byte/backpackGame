@@ -1,6 +1,6 @@
 import pygame
 class Itemslot(pygame.sprite.Sprite):
-    def __init__(self,posx, posy):
+    def __init__(self,posx=0, posy=0):
         super().__init__()
         
         #itemSlot soll ein Item halten können
