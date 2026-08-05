@@ -17,7 +17,9 @@ class item(pygame.sprite.Sprite):
     def __init__(self, image, name, posx,posy, cost=0, rarity="", itemtype="", itemID="", dmgVal=0, defVal=0, space_x=1, space_y=1):
         super().__init__()
         self.image = image
-        self.rect = image.get_rect()
+        self.rect=self.image.get_rect()
+        self.rect.width = space_x*80
+        self.rect.height = space_y*80 
         self.rect.x=posx
         self.rect.y=posy
 

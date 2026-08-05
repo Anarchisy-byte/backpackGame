@@ -7,6 +7,7 @@ import shop
 import os
 
 #Einstellungen für Lokales laufen des Programms
+#xhost + local:
 print("SDL_VIDEODRIVER =", os.environ.get("SDL_VIDEODRIVER"))
 print("DISPLAY =", os.environ.get("DISPLAY"))
 print("XAUTHORITY =", os.environ.get("XAUTHORITY"))
@@ -46,6 +47,7 @@ item_imges=item.item.createItemSprites()
 testitemgroup=itemgroup()
 testitemgroup.add([item.item(item_imges[i],"test", 50+i*50, 50) for i in range(20)])
 curser=curser()
+top_item=None
 
 
 running=True
@@ -64,7 +66,6 @@ while running:
     testitemgroup.draw(screen)
     curser.update(screen)
     for event in pygame.event.get():
-        #hier keine while machen --> crashed Programm :(
         if event.type == pygame.MOUSEBUTTONDOWN  and event.button==1: 
             collided_items=pygame.sprite.spritecollide(curser, testitemgroup,False)
             if collided_items:
@@ -72,7 +73,13 @@ while running:
                 print("clicked")
                 x,y=pygame.mouse.get_pos()
                 top_item.move(screen,x,y)
-                pygame.display.update()
+        elif event.type==pygame.MOUSEMOTION:
+            if(top_item is not None):
+                x,y=pygame.mouse.get_pos()
+                top_item.move(screen,x,y)
+        elif event.type==pygame.MOUSEBUTTONUP and event.button==1:
+            if(top_item is not None):
+                top_item=None
                 
 
 
