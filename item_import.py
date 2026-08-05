@@ -24,6 +24,10 @@ def item_pools():
 
     return item_pools
 
+"""können wir mit der Implementierung von space x und space y warten --> größe von Sprite durch img.get_rect()
+und derzeit habe ich Itemslot als Group mit die eine Sprite halten kann, muss mir dafür neue Implementierung überlegen"""
+
+
 """
 pools = item_pools()
 total_in_pools = sum(len(v) for v in pools.values())
