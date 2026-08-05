@@ -19,7 +19,10 @@ clock=pygame.time.Clock()
 
 #Testen Anzeigen eines Items
 TestBackpack=backpack.backpack(3,2,100,600)
-TestShop=shop.shop(950,800)
+TestShop=shop.shop(950,300)
+item_imges=item.item.createItemSprites()
+testItems=[item.item(item_imges[i],"test", 50+i*50, 50) for i in range(20)]
+
 
 
 running=True
@@ -37,7 +40,9 @@ while running:
 
     TestBackpack.draw(screen)
     TestShop.draw(screen)
-    
+    for testitem in testItems:
+        testitem.draw(screen)
+
     pygame.display.flip()
 
     clock.tick(60)

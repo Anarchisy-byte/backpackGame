@@ -9,6 +9,7 @@ class shop(pygame.sprite.Sprite):
     def __init__(self, posx, posy, listItemSlots=[Itemslot.Itemslot() for i in range(5)]):
         self.listItemSlots=listItemSlots
         self.image=pygame.image.load("images/shop.jpg")
+        self.image=pygame.transform.smoothscale_by(self.image,(0.1,0.1))
         self.rect=self.image.get_rect()
         self.rect.x=posx
         self.rect.y=posy
