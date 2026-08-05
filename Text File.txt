@@ -9,5 +9,3 @@ Struktur:
     charcter(rucksack, hp, armor, attack,lv) --> Gegner; spieler(savestate,geld, leben)
     battle()
     main()
-
-jscheunert@students.uni-mainz.de
