@@ -32,8 +32,10 @@ class item(pygame.sprite.Sprite):
         self.space_y=space_y
 
     
-    def update(self, screen):
-        ...
+    def move(self, screen, x,y):
+        self.rect.x=x
+        self.rect.y=y
+        screen.blit(self.image, self.rect)
 
     def draw(self,screen):
         screen.blit(self.image, self.rect)
