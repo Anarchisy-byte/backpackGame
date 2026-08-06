@@ -26,3 +26,6 @@ class shop(pygame.sprite.Sprite):
         screen.blit(self.image,self.rect)
         for item_Slot in self.listItemSlots:
             item_Slot.draw(screen)
+    
+    def returnItemslots(self):
+        return self.listItemSlots

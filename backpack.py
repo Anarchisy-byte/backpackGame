@@ -27,3 +27,5 @@ class backpack(pygame.sprite.Sprite):
             for colom in row:
                 colom.draw(screen)
 
+    def returnItemslots(self):
+        return self.sprites

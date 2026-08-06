@@ -37,12 +37,27 @@ class curser(pygame.sprite.Sprite):
 class itemgroup(pygame.sprite.LayeredUpdates):
     def __init__(self):
         super().__init__()
-        
+
+class itemSlotGroup(pygame.sprite.Group):
+    def __init__(self):
+        super().__init__()
+
+    def storedItems(self):
+        l=[]
+        for s in self.sprites():
+            l.append(s.item)
+        return l
 
 
-#Testen Anzeigen eines Items
+#Testen der Elemente
 TestBackpack=backpack.backpack(3,2,100,600)
+
 TestShop=shop.shop(950,300)
+
+testitemslotgroup=itemSlotGroup()
+testitemslotgroup.add(TestBackpack.returnItemslots())
+testitemslotgroup.add(TestShop.returnItemslots())
+
 item_imges=item.item.createItemSprites()
 testitemgroup=itemgroup()
 testitemgroup.add([item.item(item_imges[i],"test", 50+i*50, 50) for i in range(20)])
@@ -52,34 +67,37 @@ top_item=None
 
 running=True
 while running:
-    for event in pygame.event.get():
-        if event.type== pygame.QUIT:
-            running=False
-    
     screen.fill("blue")
-
-    #tuple mouse.get_pos() wird ausgegeben
-    
-
     TestBackpack.draw(screen)
     TestShop.draw(screen)
     testitemgroup.draw(screen)
     curser.update(screen)
     for event in pygame.event.get():
-        if event.type == pygame.MOUSEBUTTONDOWN  and event.button==1: 
-            collided_items=pygame.sprite.spritecollide(curser, testitemgroup,False)
+        if event.type== pygame.QUIT:
+            running=False
+        elif event.type == pygame.MOUSEBUTTONDOWN  and event.button==1:
+            x,y=pygame.mouse.get_pos()
+            #erstellt List mit überlappenden sprites an mouse, pos; sprite mit highest layer hinten 
+            collided_items=testitemgroup.get_sprites_at((x,y))
+            collided_items=[item for item in collided_items if item not in testitemslotgroup.storedItems()]
             if collided_items:
-                top_item=max(collided_items)
+                top_item=collided_items[-1]
+                testitemgroup.move_to_front(top_item)
                 print("clicked")
-                x,y=pygame.mouse.get_pos()
-                top_item.move(screen,x,y)
+                top_item.move(x,y)
         elif event.type==pygame.MOUSEMOTION:
             if(top_item is not None):
                 x,y=pygame.mouse.get_pos()
-                top_item.move(screen,x,y)
+                top_item.move(x,y)
         elif event.type==pygame.MOUSEBUTTONUP and event.button==1:
             if(top_item is not None):
+                #over an itemslot
+                overitemslot=pygame.sprite.spritecollide(top_item, testitemslotgroup,False)
+                if(type(overitemslot)==list):
+                    if(not overitemslot[0].checkItem()):
+                        overitemslot[0].addItem(top_item)
                 top_item=None
+                
                 
 
 
