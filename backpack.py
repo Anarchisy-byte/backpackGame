@@ -3,9 +3,6 @@ import Itemslot
 
 class backpack(pygame.sprite.Sprite):
     #https://www.pygame.org/docs/ref/sprite.html
-    """Einfügen von Items in backpack über add
-    entfernen über remove
-    Anzeigen über pygame.sprite.RenderUpdates.draw()"""
 
     def __init__(self, rows, colom, posx, posy):
         super().__init__()

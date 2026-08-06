@@ -17,10 +17,14 @@ class shop(pygame.sprite.Sprite):
         for i,itemSlot in enumerate(self.listItemSlots):
             itemSlot.rect.x=posx +i*abstand
             itemSlot.rect.y=posy
-    
+    """
+    def fillRandomItem(self):
+        for item_slot in self.listItemSlots:
+            item_slot.addItem()
+    """
+
     def fillItem(self, indexSlot, item):
         self.listItemSlots[indexSlot].addItem(item)
-        #self.listItemSlots[indexSlot].draw(screen)
 
     def draw(self,screen):
         screen.blit(self.image,self.rect)

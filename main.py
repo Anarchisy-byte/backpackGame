@@ -4,6 +4,7 @@ import item
 import Itemslot
 import backpack
 import shop
+import character
 import os
 
 #Einstellungen für Lokales laufen des Programms
@@ -49,21 +50,26 @@ class itemSlotGroup(pygame.sprite.Group):
         return l
 
 
-#Testen der Elemente
+#Testen der Elemente Backpack und Shop
 TestBackpack=backpack.backpack(3,2,100,600)
 
 TestShop=shop.shop(950,300)
 
+#Erzeugen von ItemSlotgroup
 testitemslotgroup=itemSlotGroup()
 testitemslotgroup.add(TestBackpack.returnItemslots())
 testitemslotgroup.add(TestShop.returnItemslots())
 
+#Erstellen von Items
 item_imges=item.item.createItemSprites()
 testitemgroup=itemgroup()
 testitemgroup.add([item.item(item_imges[i],"test", 50+i*50, 50) for i in range(20)])
 curser=curser()
 top_item=None
 
+#Anzeige von Texten
+displayed_text=[]
+REMOVE_TEXT_EVENT = pygame.USEREVENT + 1
 
 running=True
 while running:
@@ -72,11 +78,38 @@ while running:
     TestShop.draw(screen)
     testitemgroup.draw(screen)
     curser.update(screen)
+    for text in displayed_text:
+        screen.blit(text.image, text.rect)
     for event in pygame.event.get():
+        x,y=pygame.mouse.get_pos()
         if event.type== pygame.QUIT:
             running=False
+        elif event.type == pygame.MOUSEBUTTONDOWN  and event.button==3:
+            collided_items=testitemgroup.get_sprites_at((x,y))
+            if collided_items:
+                top_item=collided_items[-1]
+                testitemgroup.move_to_front(top_item)
+                print("show stats")
+
+                #Anzeigen der Stats eines Items
+                textf=pygame.font.Font(None,20)
+                texts=textf.render(top_item.stats(),True, "black", "white")
+                text_sprite=pygame.sprite.Sprite()
+                text_sprite.image=texts
+                text_sprite.rect=texts.get_rect(center=(x,y))
+                displayed_text.append(text_sprite)
+
+                pygame.time.set_timer(REMOVE_TEXT_EVENT,300)
+                top_item=None
+
+        elif event.type == REMOVE_TEXT_EVENT:
+            if(displayed_text==[]):
+                pygame.time.set_timer(REMOVE_TEXT_EVENT, 0)
+            else:
+                del displayed_text[0]
+                
+            
         elif event.type == pygame.MOUSEBUTTONDOWN  and event.button==1:
-            x,y=pygame.mouse.get_pos()
             #erstellt List mit überlappenden sprites an mouse, pos; sprite mit highest layer hinten 
             collided_items=testitemgroup.get_sprites_at((x,y))
             collided_items=[item for item in collided_items if item not in testitemslotgroup.storedItems()]
@@ -93,7 +126,7 @@ while running:
             if(top_item is not None):
                 #over an itemslot
                 overitemslot=pygame.sprite.spritecollide(top_item, testitemslotgroup,False)
-                if(type(overitemslot)==list):
+                if(overitemslot!=list()):
                     if(not overitemslot[0].checkItem()):
                         overitemslot[0].addItem(top_item)
                 top_item=None

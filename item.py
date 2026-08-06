@@ -37,3 +37,6 @@ class item(pygame.sprite.Sprite):
 
     def draw(self,screen):
         screen.blit(self.image, self.rect)
+    
+    def stats(self):
+        return f"cost: {self.cost} dmgVal: {self.dmgVal} defVal: {self.defVal}"
