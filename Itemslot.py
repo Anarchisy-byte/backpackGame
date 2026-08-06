@@ -17,10 +17,24 @@ class Itemslot(pygame.sprite.Sprite):
         self.item=sprite
         self.item.rect=self.rect
 
+    def removeItem(self):
+        self.item=None
+
     def checkItem(self):
         if(self.item==None):
             return False
         return True
+    def move(self):
+        pass
+
+    def canbuyItem(self, money):
+        if(self.checkItem() and self.item.cost<=money):
+            return True
+        return False
+
+    def buyItem(self):
+        item=self.item
+        self.item=None
 
     def draw(self,screen):
         screen.blit(self.image,self.rect)

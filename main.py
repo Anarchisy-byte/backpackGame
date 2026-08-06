@@ -38,6 +38,7 @@ class curser(pygame.sprite.Sprite):
 class itemgroup(pygame.sprite.LayeredUpdates):
     def __init__(self):
         super().__init__()
+    
 
 class itemSlotGroup(pygame.sprite.Group):
     def __init__(self):
@@ -48,17 +49,12 @@ class itemSlotGroup(pygame.sprite.Group):
         for s in self.sprites():
             l.append(s.item)
         return l
+    
+    def containerOfstoredItem(self,sprite):
+        for s in self.sprites():
+            if(s.item==sprite):
+                return s
 
-
-#Testen der Elemente Backpack und Shop
-TestBackpack=backpack.backpack(3,2,100,600)
-
-TestShop=shop.shop(950,300)
-
-#Erzeugen von ItemSlotgroup
-testitemslotgroup=itemSlotGroup()
-testitemslotgroup.add(TestBackpack.returnItemslots())
-testitemslotgroup.add(TestShop.returnItemslots())
 
 #Erstellen von Items
 item_imges=item.item.createItemSprites()
@@ -67,9 +63,24 @@ testitemgroup.add([item.item(item_imges[i],"test", 50+i*50, 50) for i in range(2
 curser=curser()
 top_item=None
 
+#Testen der Elemente Backpack und Shop
+TestBackpack=backpack.backpack(3,2,100,600)
+
+TestShop=shop.shop(950,300)
+TestShop.fillItem(1,testitemgroup.get_sprite(0))
+
+#Erzeugen von ItemSlotgroup
+BackPackSlots=itemSlotGroup()
+ShopSlots=itemSlotGroup()
+BackPackSlots.add(TestBackpack.returnItemslots())
+ShopSlots.add(TestShop.returnItemslots())
+
+
 #Anzeige von Texten
 displayed_text=[]
 REMOVE_TEXT_EVENT = pygame.USEREVENT + 1
+money=int(5000)
+a=None
 
 running=True
 while running:
@@ -78,6 +89,7 @@ while running:
     TestShop.draw(screen)
     testitemgroup.draw(screen)
     curser.update(screen)
+
     for text in displayed_text:
         screen.blit(text.image, text.rect)
     for event in pygame.event.get():
@@ -108,12 +120,61 @@ while running:
             else:
                 del displayed_text[0]
                 
-            
         elif event.type == pygame.MOUSEBUTTONDOWN  and event.button==1:
             #erstellt List mit überlappenden sprites an mouse, pos; sprite mit highest layer hinten 
             collided_items=testitemgroup.get_sprites_at((x,y))
-            collided_items=[item for item in collided_items if item not in testitemslotgroup.storedItems()]
-            if collided_items:
+            collided_items=[item for item in collided_items if item not in BackPackSlots.storedItems() and item not in ShopSlots.sprites()]
+            l=[item for item in collided_items if item in ShopSlots.storedItems()]
+            if (l):
+                top_item=l[-1]
+                shopSlot_mit_Item=ShopSlots.containerOfstoredItem(top_item)
+                print("buy Item")
+                if shopSlot_mit_Item.canbuyItem(money) and (TestBackpack.get_empty_slot is not None):
+                    money-=top_item.cost
+                    shopSlot_mit_Item.buyItem()
+                    slot = TestBackpack.addItem(top_item)
+                    print("help me")  
+                    if slot:
+                        print("help")
+                        top_item.rect.center = slot.rect.center
+                        top_item.update()
+                testitemgroup.move_to_front(top_item)
+                testitemgroup.draw(screen)
+                top_item=None
+
+            elif collided_items:
+                top_item=collided_items[-1]
+                testitemgroup.move_to_front(top_item)
+                print("clicked")
+                
+        
+
+    pygame.display.update()
+    
+    clock.tick(60)
+    
+
+pygame.quit()
+
+
+"""
+DRAG AND DROP CODE MIT FEHLER --> Shop Itemslot wird mitbewegt
+elif event.type == pygame.MOUSEBUTTONDOWN  and event.button==1:
+            #erstellt List mit überlappenden sprites an mouse, pos; sprite mit highest layer hinten 
+            collided_items=testitemgroup.get_sprites_at((x,y))
+            collided_items=[item for item in collided_items if item not in BackPackSlots.storedItems() and item not in ShopSlots.sprites()]
+            l=[item for item in collided_items if item in ShopSlots.storedItems()]
+            if (l):
+                top_item=l[-1]
+                a=ShopSlots.containerOfstoredItem(top_item)
+                print("Before:", a.rect.x, a.rect.y)
+                a.buyItem(money)
+                print("After:", a.rect.x, a.rect.y)
+                testitemgroup.move_to_front(top_item)
+                print("buy")
+                top_item=None
+
+            elif collided_items:
                 top_item=collided_items[-1]
                 testitemgroup.move_to_front(top_item)
                 print("clicked")
@@ -125,20 +186,9 @@ while running:
         elif event.type==pygame.MOUSEBUTTONUP and event.button==1:
             if(top_item is not None):
                 #over an itemslot
-                overitemslot=pygame.sprite.spritecollide(top_item, testitemslotgroup,False)
+                overitemslot=pygame.sprite.spritecollide(top_item, BackPackSlots,False)
                 if(overitemslot!=list()):
                     if(not overitemslot[0].checkItem()):
                         overitemslot[0].addItem(top_item)
                 top_item=None
-                
-                
-
-
-    pygame.display.update()
-    
-    clock.tick(60)
-    
-
-pygame.quit()
-
-
+                """

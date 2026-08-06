@@ -8,6 +8,8 @@ class backpack(pygame.sprite.Sprite):
         super().__init__()
         self.sprites=[[None for i in range(colom)] for i in range(rows)]
         abstand=130
+        self.rows=rows
+        self.colom=colom
         for row in range(rows):
             for c in range(colom):
                 self.sprites[row][c]=Itemslot.Itemslot(posx+abstand*row,posy+abstand*c)
@@ -26,3 +28,13 @@ class backpack(pygame.sprite.Sprite):
 
     def returnItemslots(self):
         return self.sprites
+
+    def get_empty_slot(self):
+        for row in range(self.rows):
+            for c in range(self.colom):
+                if(self.sprites[row][c].item is None):
+                    return (row,c)
+    
+    def addItem(self,sprite):
+        row,c=self.get_empty_slot()
+        self.sprites[row][c].addItem(sprite)

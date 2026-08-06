@@ -20,7 +20,7 @@ class item(pygame.sprite.Sprite):
         self.rect=self.image.get_rect(center=(posx,posy))
 
         #Itemspezifische Eigenschaften
-        self.cost=cost
+        self.cost=int(cost)
         self.rarity=rarity
         self.itemtype=itemtype
         self.itemID=itemID
