@@ -30,6 +30,7 @@ class item(pygame.sprite.Sprite):
         self.defVal=defVal
         self.space_x=space_x
         self.space_y=space_y
+        self.layer=1
 
     
     def move(self, x,y):

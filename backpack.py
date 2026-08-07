@@ -29,6 +29,12 @@ class backpack(pygame.sprite.Sprite):
     def returnItemslots(self):
         return self.sprites
 
+    def removeItem(self, item):
+        for row in range(self.rows):
+            for c in range(self.colom):
+                if(item==self.sprites[row][c].item):
+                    self.sprites[row][c].item=None
+
     def get_empty_slot(self):
         for row in range(self.rows):
             for c in range(self.colom):

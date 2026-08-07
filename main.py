@@ -51,6 +51,11 @@ class itemgroup(pygame.sprite.LayeredUpdates):
             if(s.item==sprite):
                 return s
     
+    def draw(self, scren):
+        l=self.sprites()
+        for slot in l:
+            slot.draw(screen)
+    
 
 curser=curser()
 top_item=None
@@ -191,31 +196,34 @@ while running:
 
             #Unterscheiden Shop und Backpack:
             print(ShopSlots.storedItems())
-            if(ShopSlots.has(slot)):
+            if ShopSlots.has(slot):
                 ShopSlots.move_to_front(slot)
-                print("buy Item")
-                #Pürft ob Spieler genug Geld für Item hat und Platz im Rucksack ist
-                if slot.canbuyItem(player.gold) and (TestBackpack.get_empty_slot() is not None):
-                    player.gold-=slot.item.cost
-                    theItem=slot.item
-                    slot.buyItem()
+                #zwischenspeichern des Items
+                theItem = slot.item
 
-                    #Setzt Item in Rucksack
-                    print(type(theItem))
+                if slot.canbuyItem(player.gold) and TestBackpack.get_empty_slot() is not None:
+                    player.gold -= theItem.cost
+                    #Shop löscht Item
+                    slot.buyItem()                       
+
+                    # Zum Backpack hinzufügen
                     BackPack_slot = TestBackpack.addItem(theItem)
-                    print("help me")  
-                    if slot:
-                        print("help")
-                        theItem.rect.center = slot.rect.center
-                        theItem.update()
-                theItem=None
+                    if BackPack_slot:
+                        theItem.rect.center = BackPack_slot.rect.center
+                        BackPackSlots.move_to_front(BackPack_slot)
+                        print("gekauft", theItem.name)
+                else:
+                    print("Kein Platz oder kein Geld")
 
             elif (BackPackSlots.has(slot)):
+                print("sell")
+                print(player.gold)
                 BackPackSlots.move_to_front(slot)
                 item_to_sell = slot.item
                 player.gold += item_to_sell.cost
                 TestBackpack.removeItem(item_to_sell) 
                 del item_to_sell
+                TestBackpack.update()
 
     pygame.display.update()
     
