@@ -3,18 +3,11 @@ import pygame
 from Itemslot import Itemslot
 from item import item
 import item_import
-#Vielleicht später from player import balance
 
 class shop(pygame.sprite.Sprite):
 
-    def __init__(self, posx, posy, listItemSlots=None):
+    def __init__(self, posx, posy, listItemSlots=[Itemslot() for i in range(5)]):
         super().__init__()
-
-        if self.listItemSlots==None:
-            self.listItemSlots=[Itemslot() for i in range(5)]
-        else:
-            self.listItemSlots=listItemSlots
-
         self.listItemSlots=listItemSlots
         self.image=pygame.image.load("images/shop.jpg")
         self.image=pygame.transform.smoothscale_by(self.image,(0.1,0.1))
@@ -29,45 +22,51 @@ class shop(pygame.sprite.Sprite):
             itemSlot.rect.y=posy
 
         self.item_sprites = item.createItemSprites()
+        self.refresh_cost=0
 
-    
-    def fillRandomItem(self,pools):
+    def returnItemslots(self):
+        return self.listItemSlots
+
+    def fillRandomItem(self,pools=None):
         rarities = ["common", "uncommon", "rare", "epic", "legendary"]
         for slot in self.listItemSlots:
             if slot.is_empty():
                 wahl_rarity = random.choices(rarities) #später mit weigths wahrscheinlichkeiten für einzelne rarities festlegen
-                pool = pools.get(wahl_rarity, [])
+                if pools is None:
+                    pools=item_import.itempools.item_pools()
+                pool = pools.get(wahl_rarity[0], [])
                 if pool:
                     data = random.choice(pool)
                     #Erstellt ein Item-Objekt basierend auf den Daten aus dem Pool
-                    sprite_idx = int(data["sprite_index"])
+                    sprite_idx = int(data["sprite_id"])
                     img = self.item_sprites[sprite_idx]
                     
 
                     new_item = item(
                         image=img,
                         name = data["name"],
-                        name=data['name'],
+                        #name=data['name'],
                         posx=slot.rect.centerx,
                         posy=slot.rect.centery,
                         cost=data['cost'],
                         rarity=data['rarity'],
-                        itemtype=data['itemtype'],
-                        itemID=data['itemID'],
-                        dmgVal=data['dmgVal'],
-                        defVal=data['defVal'],
-                        space_x=data['space_x'],
-                        space_y=data['space_y']
+                        itemtype=data['type'],
+                        itemID=data['item_id'],
+                        dmgVal=data['attack'],
+                        defVal=data['armor'],
+                        space_x=1,
+                        space_y=1
                     )
                     slot.addItem(new_item)
 
-    def refresh(self, player, pools):
+    def refresh(self, player, pools=None):
         """Leert den Shop und befüllt ihn neu"""
         if player.gold >= self.refresh_cost:
             player.gold -= self.refresh_cost
+            self.refresh_cost+=1
             for slot in self.listItemSlots:
                 slot.removeItem() # Slot leeren
-            self.fillRandomItem(pools)
+            self.fillRandomItem(pools=None)
             return True
         return False
     """

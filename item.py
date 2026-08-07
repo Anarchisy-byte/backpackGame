@@ -1,6 +1,8 @@
 import pygame
 class item(pygame.sprite.Sprite):
     def createItemSprites():
+        pygame.init()
+        screen=pygame.display.set_mode((1920,1280))
         itemSheet=pygame.image.load("images/Items/roguelikeitems.png").convert_alpha()
         item_texturesize=16
         item_sprites=[]

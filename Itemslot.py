@@ -20,10 +20,16 @@ class Itemslot(pygame.sprite.Sprite):
     def removeItem(self):
         self.item=None
 
+#zwei Mal selbe Methode --> korregiere später
     def checkItem(self):
         if(self.item==None):
             return False
         return True
+
+    def is_empty(self):
+        return (self.item==None)
+    
+
     def move(self):
         pass
 

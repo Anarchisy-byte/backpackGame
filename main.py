@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import item
+import item_import
 import Itemslot
 import backpack
 import shop
@@ -38,57 +39,66 @@ class curser(pygame.sprite.Sprite):
 class itemgroup(pygame.sprite.LayeredUpdates):
     def __init__(self):
         super().__init__()
-    
-
-class itemSlotGroup(pygame.sprite.Group):
-    def __init__(self):
-        super().__init__()
-
     def storedItems(self):
         l=[]
         for s in self.sprites():
-            l.append(s.item)
+            if s.item is not None:
+                l.append(s.item)
         return l
     
     def containerOfstoredItem(self,sprite):
         for s in self.sprites():
             if(s.item==sprite):
                 return s
+    
 
-
-#Erstellen von Items
-item_imges=item.item.createItemSprites()
-testitemgroup=itemgroup()
-testitemgroup.add([item.item(item_imges[i],"test", 50+i*50, 50) for i in range(20)])
 curser=curser()
 top_item=None
 
 #Testen der Elemente Backpack und Shop
 TestBackpack=backpack.backpack(3,2,100,600)
 
-TestShop=shop.shop(950,300)
-TestShop.fillItem(1,testitemgroup.get_sprite(0))
-
 #Erzeugen von ItemSlotgroup
-BackPackSlots=itemSlotGroup()
-ShopSlots=itemSlotGroup()
+BackPackSlots=itemgroup()
 BackPackSlots.add(TestBackpack.returnItemslots())
-ShopSlots.add(TestShop.returnItemslots())
-
+ShopSlots=None
 
 #Anzeige von Texten
 displayed_text=[]
 REMOVE_TEXT_EVENT = pygame.USEREVENT + 1
-money=int(5000)
 a=None
+
+#Kampf und Shop-Phasen:
+inbattle=False
+BUY_PHASE_EVENT = pygame.USEREVENT +2
+ENTER_BATTLE_PHASE_EVENT = pygame.USEREVENT +3
+
+#starte Shop
+TestShop=None
+pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
+
+enemy=None
+
+player=character.player(10,1,100, TestBackpack)
+
+
+def load_shop(item_pools=None):
+    TestShop=shop.shop(950,300)
+    TestShop.refresh(player,item_pools)                
+    return TestShop
 
 running=True
 while running:
     screen.fill("blue")
-    TestBackpack.draw(screen)
-    TestShop.draw(screen)
-    testitemgroup.draw(screen)
+    TestBackpack.draw(screen) 
+    BackPackSlots.draw(screen)
     curser.update(screen)
+
+    if not inbattle and TestShop is not None:
+        TestShop.draw(screen)
+    
+    if inbattle and enemy is not None:
+        enemy.draw(screen)
 
     for text in displayed_text:
         screen.blit(text.image, text.rect)
@@ -96,16 +106,38 @@ while running:
         x,y=pygame.mouse.get_pos()
         if event.type== pygame.QUIT:
             running=False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_a:                
+                print("a")
+                if inbattle:
+                    pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
+                    inbattle=False
+                else:
+                    pygame.event.post(pygame.event.Event(ENTER_BATTLE_PHASE_EVENT))
+                    inbattle=True
+
+
         elif event.type == pygame.MOUSEBUTTONDOWN  and event.button==3:
-            collided_items=testitemgroup.get_sprites_at((x,y))
+            collided_items=[]
+            if ShopSlots is not None:
+                collided_items=ShopSlots.get_sprites_at((x,y))
+            collided_items+=BackPackSlots.get_sprites_at((x,y))
+
+            #wenn keine Items --> abbrechen
+            if not collided_items:
+                continue
+
             if collided_items:
                 top_item=collided_items[-1]
-                testitemgroup.move_to_front(top_item)
+                if (BackPackSlots.has(top_item)):
+                    BackPackSlots.move_to_front(top_item)
+                if (ShopSlots.has(top_item)):
+                    ShopSlots.move_to_front(top_item)
                 print("show stats")
 
                 #Anzeigen der Stats eines Items
                 textf=pygame.font.Font(None,20)
-                texts=textf.render(top_item.stats(),True, "black", "white")
+                texts=textf.render(top_item.item.stats(),True, "black", "white")
                 text_sprite=pygame.sprite.Sprite()
                 text_sprite.image=texts
                 text_sprite.rect=texts.get_rect(center=(x,y))
@@ -119,54 +151,71 @@ while running:
                 pygame.time.set_timer(REMOVE_TEXT_EVENT, 0)
             else:
                 del displayed_text[0]
+        
+        #Kaufphase starten
+        elif event.type==BUY_PHASE_EVENT:
+            if not inbattle:
+                del enemy
+                enemy=None
+                TestShop=load_shop()#übergabe itempool
+                TestShop.draw(screen)
+                ShopSlots=itemgroup()
+                ShopSlots.add(TestShop.returnItemslots())
+            else:
+                print("in battle")
+
+        elif event.type==ENTER_BATTLE_PHASE_EVENT:
+            del TestShop
+            TestShop=None
+            enemy=character.enemy(10,1)
+            ...
 
         #Kaufen mit Linksclick
         elif event.type == pygame.MOUSEBUTTONDOWN  and event.button==1:
-            #erstellt List mit überlappenden sprites an mouse, pos; sprite mit highest layer hinten 
-            collided_items=testitemgroup.get_sprites_at((x,y))
-            collided_items=[item for item in collided_items if item not in BackPackSlots.storedItems() and item not in ShopSlots.sprites()]
+            #Wenn battle --> nicht kaufen/verkaufen
+            if inbattle:
+                continue
+            collided_slots = []
+            if ShopSlots is not None:
+                collided_slots.extend(ShopSlots.get_sprites_at((x, y)))
+            if BackPackSlots is not None:
+                collided_slots.extend(BackPackSlots.get_sprites_at((x, y)))
 
-            shop_items=[item for item in collided_items if item in ShopSlots.storedItems()]
-            if shop_items:
-                top_item=shop_items[-1]
-                shopSlot_mit_Item=ShopSlots.containerOfstoredItem(top_item)
+            if not collided_slots:
+                continue
+            
+            #vorderster Slot mit Item
+            slot = collided_slots[-1]   
+            if slot.item is None:
+                continue
+
+            #Unterscheiden Shop und Backpack:
+            print(ShopSlots.storedItems())
+            if(ShopSlots.has(slot)):
+                ShopSlots.move_to_front(slot)
                 print("buy Item")
                 #Pürft ob Spieler genug Geld für Item hat und Platz im Rucksack ist
-                if shopSlot_mit_Item.canbuyItem(money) and (TestBackpack.get_empty_slot() is not None):
-                    money-=top_item.cost
-                    shopSlot_mit_Item.buyItem()
+                if slot.canbuyItem(player.gold) and (TestBackpack.get_empty_slot() is not None):
+                    player.gold-=slot.item.cost
+                    theItem=slot.item
+                    slot.buyItem()
 
                     #Setzt Item in Rucksack
-                    slot = TestBackpack.addItem(top_item)
+                    print(type(theItem))
+                    BackPack_slot = TestBackpack.addItem(theItem)
                     print("help me")  
                     if slot:
                         print("help")
-                        top_item.rect.center = slot.rect.center
-                        top_item.update()
-                testitemgroup.move_to_front(top_item)
-                top_item=None
+                        theItem.rect.center = slot.rect.center
+                        theItem.update()
+                theItem=None
 
-            #Verkaufen mit Rechtsclick
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
-                mouse_pos = event.pos
-                collided_items = testitemgroup.get_sprites_at(mouse_pos)
-
-                #filter damit nur items die im rucksack sind verkauft werden können
-                backpack_items = [item for item in collided_items if item in TestBackpack.storedItems()]
-
-            if backpack_items:
+            elif (BackPackSlots.has(slot)):
+                BackPackSlots.move_to_front(slot)
                 item_to_sell = backpack_items[-1]
-                money += item_to_sell.cost
+                player.gold += item_to_sell.cost
                 TestBackpack.removeItem(item_to_sell) 
-                item_to_sell.kill()
-
-            elif collided_items:
-                top_item=collided_items[-1]
-                testitemgroup.move_to_front(top_item)
-                print("clicked")
-            
-                
-    testitemgroup.draw(screen)
+                del item_to_sell
 
     pygame.display.update()
     

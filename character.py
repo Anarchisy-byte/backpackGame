@@ -7,7 +7,7 @@ class character(pygame.sprite.Sprite):
     
     def __init__(self, health=1, lv=1):
         super().__init__()
-        self.image=pygame.image.load("images/character/7965103.png")
+        self.image=pygame.image.load("images/character/7965103.jpg")
         self.rect=self.image.get_rect()
         self.health=health
         self.lv=lv
@@ -17,16 +17,16 @@ class character(pygame.sprite.Sprite):
 
 class player(character):
 
-    def __init__(self, health, lv, currency, backpack):
+    def __init__(self, health, lv, gold, backpack):
         super().__init__()
         self.health=health
         self.lv=lv
-        self.currency=currency
+        self.gold=gold
         self.backpack=backpack
 
 class enemy(character):
     def __init__(self, health, lv):
-        super().__init_()
+        super().__init__()
         self.health=health
         self.lv=lv
     
