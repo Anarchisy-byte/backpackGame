@@ -212,7 +212,7 @@ while running:
 
             elif (BackPackSlots.has(slot)):
                 BackPackSlots.move_to_front(slot)
-                item_to_sell = backpack_items[-1]
+                item_to_sell = slot.item
                 player.gold += item_to_sell.cost
                 TestBackpack.removeItem(item_to_sell) 
                 del item_to_sell
