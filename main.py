@@ -119,19 +119,24 @@ while running:
                 pygame.time.set_timer(REMOVE_TEXT_EVENT, 0)
             else:
                 del displayed_text[0]
-                
+
+        #Kaufen mit Linksclick
         elif event.type == pygame.MOUSEBUTTONDOWN  and event.button==1:
             #erstellt List mit überlappenden sprites an mouse, pos; sprite mit highest layer hinten 
             collided_items=testitemgroup.get_sprites_at((x,y))
             collided_items=[item for item in collided_items if item not in BackPackSlots.storedItems() and item not in ShopSlots.sprites()]
-            l=[item for item in collided_items if item in ShopSlots.storedItems()]
-            if (l):
-                top_item=l[-1]
+
+            shop_items=[item for item in collided_items if item in ShopSlots.storedItems()]
+            if shop_items:
+                top_item=shop_items[-1]
                 shopSlot_mit_Item=ShopSlots.containerOfstoredItem(top_item)
                 print("buy Item")
-                if shopSlot_mit_Item.canbuyItem(money) and (TestBackpack.get_empty_slot is not None):
+                #Pürft ob Spieler genug Geld für Item hat und Platz im Rucksack ist
+                if shopSlot_mit_Item.canbuyItem(money) and (TestBackpack.get_empty_slot() is not None):
                     money-=top_item.cost
                     shopSlot_mit_Item.buyItem()
+
+                    #Setzt Item in Rucksack
                     slot = TestBackpack.addItem(top_item)
                     print("help me")  
                     if slot:
@@ -139,15 +144,29 @@ while running:
                         top_item.rect.center = slot.rect.center
                         top_item.update()
                 testitemgroup.move_to_front(top_item)
-                testitemgroup.draw(screen)
                 top_item=None
+
+            #Verkaufen mit Rechtsclick
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+                mouse_pos = event.pos
+                collided_items = testitemgroup.get_sprites_at(mouse_pos)
+
+                #filter damit nur items die im rucksack sind verkauft werden können
+                backpack_items = [item for item in collided_items if item in TestBackpack.storedItems()]
+
+            if backpack_items:
+                item_to_sell = backpack_items[-1]
+                money += item_to_sell.cost
+                TestBackpack.removeItem(item_to_sell) 
+                item_to_sell.kill()
 
             elif collided_items:
                 top_item=collided_items[-1]
                 testitemgroup.move_to_front(top_item)
                 print("clicked")
+            
                 
-        
+    testitemgroup.draw(screen)
 
     pygame.display.update()
     

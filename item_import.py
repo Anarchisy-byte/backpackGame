@@ -1,4 +1,6 @@
 import pandas as pd
+from item import item
+
 items_list = pd.read_excel("items_list.xlsx")
 
 
@@ -14,6 +16,8 @@ def item_pools():
         "legendary": []
     }
 
+    alle_item_bilder = item.createItemSprites()
+
     for index, row in items_list.iterrows():
         rarity = row['rarity']
 
@@ -23,6 +27,8 @@ def item_pools():
             print(f"Warnung: Unbekannte Rarity '{rarity}' für Item '{row['name']}'")
 
     return item_pools
+
+
 
 """können wir mit der Implementierung von space x und space y warten --> größe von Sprite durch img.get_rect()
 und derzeit habe ich Itemslot als Group mit die eine Sprite halten kann, muss mir dafür neue Implementierung überlegen"""
