@@ -28,13 +28,24 @@ class character(pygame.sprite.Sprite):
         self.rect=self.image.get_rect()
         self.health=health
         self.maxhealth=health #health sprite object?? --> Anzeigen der Hp
+        self.health_sprite=None
         self.lv=lv
 
-        
+    def updateHealthSprite(self):
+        width=3*self.health*3
+        height=5
+        surf=pygame.Surface((width,height))
+        surf.fill("RED")
+        if(self.health_sprite is None):
+            self.health_sprite=pygame.sprite.Sprite()
+        self.health_sprite.image=surf
+        self.health_sprite.rect=self.health_sprite.image.get_rect(topleft=(self.rect.x, self.rect.y))
     
     def draw(self, screen):
         screen.blit(self.image, self.rect)
         self.backpack.draw(screen)
+        self.updateHealthSprite()
+        screen.blit(self.health_sprite.image, self.health_sprite.rect)
     
     def attack(self, gegner):
         for slot in self.backpack.sprites:
