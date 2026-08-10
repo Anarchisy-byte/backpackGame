@@ -18,9 +18,6 @@ dist/
 *.egg
 
 # Pygame specific (if you save screenshots or generated assets)
-*.png
-*.jpg
-*.jpeg
 *.gif
 *.mp3
 *.wav
