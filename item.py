@@ -1,11 +1,14 @@
 import pygame
+
+item_sprites=[]
 class item(pygame.sprite.Sprite):
-    def createItemSprites():
+    
+    def load_item_sprites():
+        global item_sprites
         pygame.init()
         screen=pygame.display.set_mode((1920,1280))
         itemSheet=pygame.image.load("images/Items/roguelikeitems.png").convert_alpha()
         item_texturesize=16
-        item_sprites=[]
         for row in range(itemSheet.get_width()//item_texturesize):
             for col in range(itemSheet.get_height()//item_texturesize):
                 x=row*item_texturesize
@@ -14,6 +17,11 @@ class item(pygame.sprite.Sprite):
                 sprite_img=itemSheet.subsurface(img)
                 sprite_img=pygame.transform.scale_by(sprite_img,5)
                 item_sprites.append(sprite_img)
+    
+    def createItemSprites():
+        global item_sprites
+        if (item_sprites==[]):
+            item.load_item_sprites()
         return item_sprites
 
     def __init__(self, image, name, posx,posy, cost=0, rarity="", itemtype="", itemID="", dmgVal=0, defVal=0, space_x=1, space_y=1):

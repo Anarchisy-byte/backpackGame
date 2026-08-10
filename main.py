@@ -73,6 +73,7 @@ displayed_text=[]
 REMOVE_TEXT_EVENT = pygame.USEREVENT + 1
 a=None
 
+
 #Kampf und Shop-Phasen:
 inbattle=False
 BUY_PHASE_EVENT = pygame.USEREVENT +2
@@ -87,6 +88,12 @@ enemy=None
 player=character.player(10,1,100, TestBackpack)
 
 
+#Geld des Spielers
+tMoney=pygame.font.Font(None,36)
+
+#Derzeitige Runde
+curRound=1
+
 def load_shop(item_pools=None):
     TestShop=shop.shop(950,300)
     TestShop.refresh(player,item_pools)                
@@ -95,9 +102,10 @@ def load_shop(item_pools=None):
 running=True
 while running:
     screen.fill("blue")
-    TestBackpack.draw(screen) 
     BackPackSlots.draw(screen)
     curser.update(screen)
+    screen.blit(tMoney.render("Gold:"+str(player.gold),True, "black", "white"),(10,45))
+    player.draw(screen)
 
     if not inbattle and TestShop is not None:
         TestShop.draw(screen)
@@ -107,11 +115,35 @@ while running:
 
     for text in displayed_text:
         screen.blit(text.image, text.rect)
+    
+    #Gameloop
+    """Jede Runde werden alle Attacken alle 5 Sek ausgeführt --> endet sobald einer Tot ist """
+    
+    if inbattle and enemy is not None:
+        print("attack")
+        player.attack(enemy)
+        pygame.time.wait(100)
+        enemy.attack(player)
+        pygame.time.wait(100)
+        print(enemy.health)
+        print(player.health)
+        if(enemy.health<=0 or player.health<=0):
+            inbattle=False
+            print("defeated")
+            if(player.health<=0):
+                pygame.event.post(pygame.event.Event(pygame.QUIT))
+            player.gold+=curRound
+            curRound+=1
+            pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
+    
+
+
     for event in pygame.event.get():
         x,y=pygame.mouse.get_pos()
         if event.type== pygame.QUIT:
             running=False
         elif event.type == pygame.KEYDOWN:
+            #Temporär --> wird geändert zum Gameplayloop
             if event.key == pygame.K_a:                
                 print("a")
                 if inbattle:
@@ -120,6 +152,10 @@ while running:
                 else:
                     pygame.event.post(pygame.event.Event(ENTER_BATTLE_PHASE_EVENT))
                     inbattle=True
+            elif event.key == pygame.K_r:
+                if not inbattle:
+                    TestShop.refresh(player)
+                    print(player.gold)
 
 
         elif event.type == pygame.MOUSEBUTTONDOWN  and event.button==3:
@@ -162,6 +198,8 @@ while running:
             if not inbattle:
                 del enemy
                 enemy=None
+                player.maxhealth+=1
+                player.health=player.maxhealth
                 TestShop=load_shop()#übergabe itempool
                 TestShop.draw(screen)
                 ShopSlots=itemgroup()
