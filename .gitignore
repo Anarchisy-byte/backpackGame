@@ -33,3 +33,6 @@ dist/
 # OS junk files
 .DS_Store
 Thumbs.db
+
+# Machine-specific environment settings (e.g. WSL X11 display config)
+.env

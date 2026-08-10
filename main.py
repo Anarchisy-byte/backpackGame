@@ -188,6 +188,7 @@ while running:
                 print("show stats")
 
                 #Anzeigen der Stats eines Items
+
                 textf=pygame.font.Font(None,20)
                 texts=textf.render(top_item.item.stats(),True, "black", "white")
                 text_sprite=pygame.sprite.Sprite()
