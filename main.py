@@ -7,6 +7,7 @@ import backpack
 import shop
 import character
 import os
+import buttonGUI
 
 #Einstellungen für Lokales laufen des Programms
 #xhost + local:
@@ -83,6 +84,10 @@ ENTER_BATTLE_PHASE_EVENT = pygame.USEREVENT +3
 TestShop=None
 pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
 
+startbutton=buttonGUI.buttonGUI(0, 1000, 950)
+buttons=itemgroup()
+buttons.add(startbutton)
+
 enemy=None
 
 player=character.player(10,1,100, TestBackpack)
@@ -106,9 +111,10 @@ while running:
     curser.update(screen)
     screen.blit(tMoney.render("Gold:"+str(player.gold),True, "black", "white"),(10,45))
     player.draw(screen)
-
+    
     if not inbattle and TestShop is not None:
         TestShop.draw(screen)
+        startbutton.draw(screen)
     
     if inbattle and enemy is not None:
         enemy.draw(screen)
@@ -197,6 +203,8 @@ while running:
         elif event.type==BUY_PHASE_EVENT:
             if not inbattle:
                 del enemy
+                startbutton=buttonGUI.buttonGUI(0, 1000, 950)
+                buttons.add(startbutton)
                 enemy=None
                 player.maxhealth+=1
                 player.health=player.maxhealth
@@ -209,8 +217,10 @@ while running:
 
         elif event.type==ENTER_BATTLE_PHASE_EVENT:
             del TestShop
+            del startbutton
             TestShop=None
-            enemy=character.enemy(10,1)
+            enemy=character.enemy(10*(1.1)**curRound,curRound)
+            inbattle=True
             ...
 
         #Kaufen mit Linksclick
@@ -223,14 +233,22 @@ while running:
                 collided_slots.extend(ShopSlots.get_sprites_at((x, y)))
             if BackPackSlots is not None:
                 collided_slots.extend(BackPackSlots.get_sprites_at((x, y)))
+            if buttons is not None:
+                collided_slots.extend(buttons.get_sprites_at((x,y)))
 
             if not collided_slots:
                 continue
             
+            if (buttons.has(collided_slots[-1])):
+                pygame.event.post(pygame.event.Event(ENTER_BATTLE_PHASE_EVENT))
+                continue
+
             #vorderster Slot mit Item
             slot = collided_slots[-1]   
             if slot.item is None:
                 continue
+            
+            
 
             #Unterscheiden Shop und Backpack:
             print(ShopSlots.storedItems())
