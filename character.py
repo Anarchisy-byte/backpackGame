@@ -30,6 +30,8 @@ class character(pygame.sprite.Sprite):
         self.maxhealth=health #health sprite object?? --> Anzeigen der Hp
         self.health_sprite=None
         self.lv=lv
+        self.armor=0
+        self.armor_sprite=None
 
     def updateHealthSprite(self):
         width=3*self.health*3
@@ -41,18 +43,56 @@ class character(pygame.sprite.Sprite):
         self.health_sprite.image=surf
         self.health_sprite.rect=self.health_sprite.image.get_rect(topleft=(self.rect.x, self.rect.y))
     
+    def updateArmorSprite(self):
+        width=3*self.armor*3
+        height=5
+        surf=pygame.Surface((width,height))
+        surf.fill("GRAY")
+        if(self.armor_sprite is None):
+            self.armor_sprite=pygame.sprite.Sprite()
+        self.armor_sprite.image=surf
+        self.armor_sprite.rect=self.armor_sprite.image.get_rect(topleft=(self.rect.x, self.rect.y))
+
     def draw(self, screen):
         screen.blit(self.image, self.rect)
         self.backpack.draw(screen)
         self.updateHealthSprite()
         screen.blit(self.health_sprite.image, self.health_sprite.rect)
+        if(self.armor!=0):
+            self.updateArmorSprite()
+            screen.blit(self.armor_sprite.image, self.armor_sprite.rect)
     
     def attack(self, gegner):
         for slot in self.backpack.sprites:
             for itemslot in slot:
                 if itemslot.item is not None:
-                    gegner.health-=itemslot.item.dmgVal
-        gegner.health-=1
+                    if(gegner.armor<=0):
+                        gegner.health-=itemslot.item.dmgVal
+                    else:
+                        gegner.armor-=itemslot.item.dmgVal
+                else:
+                    if(gegner.armor<=0):
+                        gegner.health-=1
+                    else:
+                        gegner.armor-=1
+    
+    def defense(self):
+        self.armor=0
+        for slot in self.backpack.sprites:
+            for itemslot in slot:
+                if itemslot.item is not None:
+                    self.armor+=itemslot.item.defVal
+        if(self.armor==0):
+            return
+        self.armor*=int(1.1*self.maxhealth)
+        width=3*self.armor*3
+        height=5
+        surf=pygame.Surface((width,height))
+        surf.fill("GRAY")
+        if(self.armor_sprite is None):
+            self.armor_sprite=pygame.sprite.Sprite()
+        self.armor_sprite.image=surf
+        self.armor_sprite.rect=self.armor_sprite.image.get_rect(topleft=(self.rect.x, self.rect.y))
 
 class player(character):
 

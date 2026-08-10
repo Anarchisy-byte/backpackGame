@@ -98,6 +98,7 @@ tMoney=pygame.font.Font(None,36)
 
 #Derzeitige Runde
 curRound=1
+newRound=True
 
 def load_shop(item_pools=None):
     TestShop=shop.shop(950,300)
@@ -127,12 +128,15 @@ while running:
     
     if inbattle and enemy is not None:
         print("attack")
+        print(player.armor, player.health, enemy.armor, enemy.health)
+        if newRound:
+            player.defense()
+            enemy.defense()
+            newRound=False
         player.attack(enemy)
         pygame.time.wait(100)
         enemy.attack(player)
         pygame.time.wait(100)
-        print(enemy.health)
-        print(player.health)
         if(enemy.health<=0 or player.health<=0):
             inbattle=False
             print("defeated")
@@ -140,6 +144,7 @@ while running:
                 pygame.event.post(pygame.event.Event(pygame.QUIT))
             player.gold+=curRound
             curRound+=1
+            newRound=True
             pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
     
 
