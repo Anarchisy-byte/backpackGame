@@ -9,8 +9,8 @@ class item(pygame.sprite.Sprite):
         screen=pygame.display.set_mode((1920,1280))
         itemSheet=pygame.image.load("images/Items/roguelikeitems.png").convert_alpha()
         item_texturesize=16
-        for row in range(itemSheet.get_width()//item_texturesize):
-            for col in range(itemSheet.get_height()//item_texturesize):
+        for row in range(13):
+            for col in range(14):
                 x=row*item_texturesize
                 y=col*item_texturesize
                 img=pygame.Rect(x,y, item_texturesize, item_texturesize)
