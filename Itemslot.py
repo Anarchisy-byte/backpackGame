@@ -15,7 +15,7 @@ class Itemslot(pygame.sprite.Sprite):
     
     def addItem(self,sprite):
         self.item=sprite
-        self.item.rect=self.rect
+        self.item.rect=self.item.image.get_rect(center=self.rect.center)
 
     def removeItem(self):
         self.item=None

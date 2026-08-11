@@ -62,7 +62,7 @@ curser=curser()
 top_item=None
 
 #Testen der Elemente Backpack und Shop
-TestBackpack=backpack.backpack(3,2,100,600)
+TestBackpack=backpack.backpack(3,2,200,600)
 
 #Erzeugen von ItemSlotgroup
 BackPackSlots=itemgroup()
@@ -188,7 +188,6 @@ while running:
                 print("show stats")
 
                 #Anzeigen der Stats eines Items
-
                 textf=pygame.font.Font(None,20)
                 texts=textf.render(top_item.item.stats(),True, "black", "white")
                 text_sprite=pygame.sprite.Sprite()
