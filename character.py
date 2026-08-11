@@ -8,11 +8,23 @@ import random
 class character(pygame.sprite.Sprite):
     
     def __init__(self, health=1, lv=1):
-        Sheet=pygame.image.load("images/character/flat-design-pixel-art-character-element-collection.png").convert_alpha()
-        print(Sheet.get_width(), Sheet.get_height())
+        
+        #print(Sheet.get_width(), Sheet.get_height())
         super().__init__()
         
+        self.imgSprites=self.character_sprites()
+        self.image=self.imgSprites[random.randint(0,len(self.imgSprites)-1)]
+        self.rect=self.image.get_rect()
+        self.health=health
+        self.maxhealth=health #health sprite object?? --> Anzeigen der Hp
+        self.health_sprite=None
+        self.lv=lv
+        self.armor=0
+        self.armor_sprite=None
+
+    def character_sprites(self):
         imgSprites=[]
+        Sheet=pygame.image.load("images/character/flat-design-pixel-art-character-element-collection.png").convert_alpha()
         img=pygame.Rect(145,213, 391, 982)
         sprite_img=Sheet.subsurface(img)
         sprite_img=pygame.transform.scale_by(sprite_img,0.3)
@@ -29,15 +41,7 @@ class character(pygame.sprite.Sprite):
         sprite_img=Sheet.subsurface(img)
         sprite_img=pygame.transform.scale_by(sprite_img,0.3)
         imgSprites.append(sprite_img)
-
-        self.image=imgSprites[2]
-        self.rect=self.image.get_rect()
-        self.health=health
-        self.maxhealth=health #health sprite object?? --> Anzeigen der Hp
-        self.health_sprite=None
-        self.lv=lv
-        self.armor=0
-        self.armor_sprite=None
+        return imgSprites
 
     def updateHealthSprite(self):
         width=3*self.health*3
@@ -50,16 +54,17 @@ class character(pygame.sprite.Sprite):
         self.health_sprite.rect=self.health_sprite.image.get_rect(topleft=(self.rect.x, self.rect.y))
     
     def updateArmorSprite(self):
-        width=3*self.armor*3
-        if(width>150):
-            width=150
-        height=5
-        surf=pygame.Surface((width,height))
-        surf.fill("GRAY")
-        if(self.armor_sprite is None):
-            self.armor_sprite=pygame.sprite.Sprite()
-        self.armor_sprite.image=surf
-        self.armor_sprite.rect=self.armor_sprite.image.get_rect(topleft=(self.rect.x, self.rect.y))
+        if(self.armor>0):
+            width=3*self.armor*3
+            if(width>150):
+                width=150
+            height=5
+            surf=pygame.Surface((width,height))
+            surf.fill("GRAY")
+            if(self.armor_sprite is None):
+                self.armor_sprite=pygame.sprite.Sprite()
+            self.armor_sprite.image=surf
+            self.armor_sprite.rect=self.armor_sprite.image.get_rect(topleft=(self.rect.x, self.rect.y))
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
