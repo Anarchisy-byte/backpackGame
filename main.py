@@ -180,8 +180,9 @@ while running:
             newRound=False
         player.attack(enemy)
         pygame.time.wait(100)
-        enemy.attack(player)
-        pygame.time.wait(100)
+        if(enemy.health<0):
+            enemy.attack(player)
+            pygame.time.wait(100)
         if(enemy.health<=0 or player.health<=0):
             print("defeated")
             if(player.health<=0):
