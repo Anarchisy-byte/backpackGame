@@ -72,12 +72,20 @@ ENTER_BATTLE_PHASE_EVENT = pygame.USEREVENT +3
 #Geld des Spielers
 tMoney=pygame.font.Font(None,36)
 
+#BackgroundMusik
+pygame.mixer.music.load("sounds/short_adventure.mp3")
+pygame.mixer.music.play()
+pygame.mixer.music.set_volume(0.3)
+purchaseSound=pygame.mixer.Sound("sounds/snd_purchase.wav")
+accept=pygame.mixer.Sound("sounds/Accept.mp3")
+
 #Platzhalter bis start_new_game() das erste Mal läuft
 TestBackpack=None
 BackPackSlots=None
 ShopSlots=None
 TestShop=None
 startbutton=None
+refreshButton=None
 buttons=None
 enemy=None
 player=None
@@ -88,7 +96,7 @@ state=STATE_MENU
 
 #Menü-Buttons (unabhängig vom Spielstand, nur einmal erzeugt)
 menu_start_button=buttonGUI.buttonGUI(0, 700, 500)
-menu_quit_button=buttonGUI.buttonGUI(0, 700, 700)
+menu_quit_button=buttonGUI.buttonGUI(4, 700, 700)
 menu_font=pygame.font.Font(None, 40)
 
 def load_shop(item_pools=None):
@@ -132,7 +140,7 @@ def draw_item_tooltip(screen):
         return
 
     texts=itemStatsFont.render(slot.item.stats(),True, "black", "white")
-    screen.blit(texts, (x,y))
+    screen.blit(texts, (x-60,y-15))
 
 running=True
 while running:
@@ -153,6 +161,7 @@ while running:
         if state==STATE_SHOP and TestShop is not None:
             TestShop.draw(screen)
             startbutton.draw(screen)
+            refreshButton.draw(screen)
 
         elif state==STATE_BATTLE and enemy is not None:
             enemy.draw(screen)
@@ -194,14 +203,10 @@ while running:
             #Temporär --> wird geändert zum Gameplayloop
             if state==STATE_MENU:
                 pass
-            elif event.key == pygame.K_a:
-                print("a")
-                if state==STATE_BATTLE:
-                    pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
-                    state=STATE_SHOP
-                else:
-                    pygame.event.post(pygame.event.Event(ENTER_BATTLE_PHASE_EVENT))
-                    state=STATE_BATTLE
+            elif event.key == pygame.K_PLUS:
+                pygame.mixer.music.set_volume(pygame.mixer.music.get_volume()+0.1)
+            elif event.key == pygame.K_MINUS:
+                pygame.mixer.music.set_volume(pygame.mixer.music.get_volume()-0.1)
             elif event.key == pygame.K_r:
                 if state==STATE_SHOP:
                     TestShop.refresh(player)
@@ -212,8 +217,10 @@ while running:
         elif event.type==BUY_PHASE_EVENT:
             if state!=STATE_BATTLE:
                 del enemy
-                startbutton=buttonGUI.buttonGUI(0, 1000, 950)
+                startbutton=buttonGUI.buttonGUI(0, 950, 950)
+                refreshButton=buttonGUI.buttonGUI(2, 1500, 950)
                 buttons.add(startbutton)
+                buttons.add(refreshButton)
                 enemy=None
                 player.maxhealth+=1
                 player.health=player.maxhealth
@@ -227,6 +234,7 @@ while running:
         elif event.type==ENTER_BATTLE_PHASE_EVENT:
             del TestShop
             del startbutton
+            del refreshButton
             TestShop=None
             enemy=character.enemy(10*(1.1)**curRound,curRound)
             state=STATE_BATTLE
@@ -235,6 +243,7 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button==1 and state==STATE_MENU:
             if menu_start_button.rect.collidepoint(x,y):
                 start_new_game()
+                accept.play()
             elif menu_quit_button.rect.collidepoint(x,y):
                 running=False
 
@@ -255,7 +264,12 @@ while running:
                 continue
             
             if (buttons.has(collided_slots[-1])):
+                if collided_slots[-1] is refreshButton:
+                    TestShop.refresh(player)
+                    accept.play()
+                    continue
                 pygame.event.post(pygame.event.Event(ENTER_BATTLE_PHASE_EVENT))
+                accept.play()
                 continue
 
             #vorderster Slot mit Item
@@ -275,7 +289,9 @@ while running:
                 if slot.canbuyItem(player.gold) and TestBackpack.get_empty_slot() is not None:
                     player.gold -= theItem.cost
                     #Shop löscht Item
-                    slot.buyItem()                       
+                    slot.buyItem()
+                    purchaseSound.play()
+
 
                     # Zum Backpack hinzufügen
                     BackPack_slot = TestBackpack.addItem(theItem)
@@ -294,6 +310,7 @@ while running:
                 player.gold += item_to_sell.cost
                 TestBackpack.removeItem(item_to_sell) 
                 del item_to_sell
+                purchaseSound.play()
                 TestBackpack.update()
 
     pygame.display.update()

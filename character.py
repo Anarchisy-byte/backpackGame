@@ -8,23 +8,29 @@ import random
 class character(pygame.sprite.Sprite):
     
     def __init__(self, health=1, lv=1):
-        Sheet=pygame.image.load("images/character/7965103.jpg").convert_alpha()
+        Sheet=pygame.image.load("images/character/flat-design-pixel-art-character-element-collection.png").convert_alpha()
         print(Sheet.get_width(), Sheet.get_height())
         super().__init__()
         
-        Sprites=[]
-        S_width=500
-        s_height=Sheet.get_height()
-        row=0
-        for row in range(Sheet.get_width()//S_width):
-            x=row*S_width
-            y=0
-            img=pygame.Rect(x,y, S_width, s_height)
-            sprite_img=Sheet.subsurface(img)
-            sprite_img=pygame.transform.scale_by(sprite_img,0.3)
-            Sprites.append(sprite_img)
+        imgSprites=[]
+        img=pygame.Rect(145,213, 391, 982)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,0.3)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(585,232, 392, 963)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,0.3)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(1007,136, 427, 1059)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,0.3)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(1466,213, 390, 982)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,0.3)
+        imgSprites.append(sprite_img)
 
-        self.image=Sprites[2]
+        self.image=imgSprites[2]
         self.rect=self.image.get_rect()
         self.health=health
         self.maxhealth=health #health sprite object?? --> Anzeigen der Hp
@@ -45,6 +51,8 @@ class character(pygame.sprite.Sprite):
     
     def updateArmorSprite(self):
         width=3*self.armor*3
+        if(width>150):
+            width=150
         height=5
         surf=pygame.Surface((width,height))
         surf.fill("GRAY")
@@ -84,7 +92,8 @@ class character(pygame.sprite.Sprite):
                     self.armor+=itemslot.item.defVal
         if(self.armor==0):
             return
-        self.armor*=int(1.1*self.maxhealth)
+        self.armor*=int(0.1*self.maxhealth)
+        self.armor=int(self.armor)
         width=3*self.armor*3
         height=5
         surf=pygame.Surface((width,height))
