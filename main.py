@@ -9,6 +9,11 @@ import character
 import os
 import buttonGUI
 
+#Bildschirmzustände
+STATE_MENU = "menu"
+STATE_SHOP = "shop"
+STATE_BATTLE = "battle"
+
 #Einstellungen für Lokales laufen des Programms
 #xhost + local:
 print("SDL_VIDEODRIVER =", os.environ.get("SDL_VIDEODRIVER"))
@@ -59,74 +64,105 @@ class itemgroup(pygame.sprite.LayeredUpdates):
     
 
 curser=curser()
-top_item=None
-
-#Testen der Elemente Backpack und Shop
-TestBackpack=backpack.backpack(3,2,200,600)
-
-#Erzeugen von ItemSlotgroup
-BackPackSlots=itemgroup()
-BackPackSlots.add(TestBackpack.returnItemslots())
-ShopSlots=None
-
-#Anzeige von Texten
-displayed_text=[]
-REMOVE_TEXT_EVENT = pygame.USEREVENT + 1
-a=None
-
 
 #Kampf und Shop-Phasen:
-inbattle=False
 BUY_PHASE_EVENT = pygame.USEREVENT +2
 ENTER_BATTLE_PHASE_EVENT = pygame.USEREVENT +3
-
-#starte Shop
-TestShop=None
-pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
-
-startbutton=buttonGUI.buttonGUI(0, 1000, 950)
-buttons=itemgroup()
-buttons.add(startbutton)
-
-enemy=None
-
-player=character.player(10,1,100, TestBackpack)
-
 
 #Geld des Spielers
 tMoney=pygame.font.Font(None,36)
 
-#Derzeitige Runde
+#Platzhalter bis start_new_game() das erste Mal läuft
+TestBackpack=None
+BackPackSlots=None
+ShopSlots=None
+TestShop=None
+startbutton=None
+buttons=None
+enemy=None
+player=None
 curRound=1
 newRound=True
 
+state=STATE_MENU
+
+#Menü-Buttons (unabhängig vom Spielstand, nur einmal erzeugt)
+menu_start_button=buttonGUI.buttonGUI(0, 700, 500)
+menu_quit_button=buttonGUI.buttonGUI(0, 700, 700)
+menu_font=pygame.font.Font(None, 40)
+
 def load_shop(item_pools=None):
     TestShop=shop.shop(950,300)
-    TestShop.refresh(player,item_pools)                
+    TestShop.refresh(player,item_pools)
     return TestShop
+
+def start_new_game():
+    global TestBackpack, BackPackSlots, ShopSlots, TestShop, startbutton, buttons, enemy, player, curRound, newRound, state
+
+    TestBackpack=backpack.backpack(3,2,200,600)
+    BackPackSlots=itemgroup()
+    BackPackSlots.add(TestBackpack.returnItemslots())
+    ShopSlots=None
+    TestShop=None
+    startbutton=buttonGUI.buttonGUI(0, 1000, 950)
+    buttons=itemgroup()
+    buttons.add(startbutton)
+    enemy=None
+    player=character.player(10,1,100, TestBackpack)
+    curRound=1
+    newRound=True
+
+    state=STATE_SHOP
+    pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
+
+itemStatsFont=pygame.font.Font(None,20)
+
+def draw_item_tooltip(screen):
+    x,y=pygame.mouse.get_pos()
+    hovered_slots=[]
+    if state==STATE_SHOP and ShopSlots is not None:
+        hovered_slots+=ShopSlots.get_sprites_at((x,y))
+    hovered_slots+=BackPackSlots.get_sprites_at((x,y))
+
+    if not hovered_slots:
+        return
+
+    slot=hovered_slots[-1]
+    if slot.item is None:
+        return
+
+    texts=itemStatsFont.render(slot.item.stats(),True, "black", "white")
+    screen.blit(texts, (x,y))
 
 running=True
 while running:
     screen.fill("blue")
-    BackPackSlots.draw(screen)
     curser.update(screen)
-    screen.blit(tMoney.render("Gold:"+str(player.gold),True, "black", "white"),(10,45))
-    player.draw(screen)
-    
-    if not inbattle and TestShop is not None:
-        TestShop.draw(screen)
-        startbutton.draw(screen)
-    
-    if inbattle and enemy is not None:
-        enemy.draw(screen)
 
-    for text in displayed_text:
-        screen.blit(text.image, text.rect)
-    
+    if state==STATE_MENU:
+        menu_start_button.draw(screen)
+        screen.blit(menu_font.render("Start", True, "black"), menu_start_button.rect.topleft)
+        menu_quit_button.draw(screen)
+        screen.blit(menu_font.render("Beenden", True, "black"), menu_quit_button.rect.topleft)
+
+    else:
+        BackPackSlots.draw(screen)
+        screen.blit(tMoney.render("Gold:"+str(player.gold),True, "black", "white"),(10,45))
+        player.draw(screen)
+
+        if state==STATE_SHOP and TestShop is not None:
+            TestShop.draw(screen)
+            startbutton.draw(screen)
+
+        elif state==STATE_BATTLE and enemy is not None:
+            enemy.draw(screen)
+
+        draw_item_tooltip(screen)
+
     #Gameloop
     """Jede Runde werden alle Attacken alle 5 Sek ausgeführt --> endet sobald einer Tot ist """
     
-    if inbattle and enemy is not None:
+    if state==STATE_BATTLE:
         print("attack")
         print(player.armor, player.health, enemy.armor, enemy.health)
         if newRound:
@@ -138,14 +174,15 @@ while running:
         enemy.attack(player)
         pygame.time.wait(100)
         if(enemy.health<=0 or player.health<=0):
-            inbattle=False
             print("defeated")
             if(player.health<=0):
-                pygame.event.post(pygame.event.Event(pygame.QUIT))
-            player.gold+=curRound
-            curRound+=1
-            newRound=True
-            pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
+                state=STATE_MENU
+            else:
+                state=STATE_SHOP
+                player.gold+=curRound
+                curRound+=1
+                newRound=True
+                pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
     
 
 
@@ -155,58 +192,25 @@ while running:
             running=False
         elif event.type == pygame.KEYDOWN:
             #Temporär --> wird geändert zum Gameplayloop
-            if event.key == pygame.K_a:                
+            if state==STATE_MENU:
+                pass
+            elif event.key == pygame.K_a:
                 print("a")
-                if inbattle:
+                if state==STATE_BATTLE:
                     pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
-                    inbattle=False
+                    state=STATE_SHOP
                 else:
                     pygame.event.post(pygame.event.Event(ENTER_BATTLE_PHASE_EVENT))
-                    inbattle=True
+                    state=STATE_BATTLE
             elif event.key == pygame.K_r:
-                if not inbattle:
+                if state==STATE_SHOP:
                     TestShop.refresh(player)
                     print(player.gold)
 
 
-        elif event.type == pygame.MOUSEBUTTONDOWN  and event.button==3:
-            collided_items=[]
-            if ShopSlots is not None:
-                collided_items=ShopSlots.get_sprites_at((x,y))
-            collided_items+=BackPackSlots.get_sprites_at((x,y))
-
-            #wenn keine Items --> abbrechen
-            if not collided_items:
-                continue
-
-            if collided_items:
-                top_item=collided_items[-1]
-                if (BackPackSlots.has(top_item)):
-                    BackPackSlots.move_to_front(top_item)
-                if (ShopSlots.has(top_item)):
-                    ShopSlots.move_to_front(top_item)
-                print("show stats")
-
-                #Anzeigen der Stats eines Items
-                textf=pygame.font.Font(None,20)
-                texts=textf.render(top_item.item.stats(),True, "black", "white")
-                text_sprite=pygame.sprite.Sprite()
-                text_sprite.image=texts
-                text_sprite.rect=texts.get_rect(center=(x,y))
-                displayed_text.append(text_sprite)
-
-                pygame.time.set_timer(REMOVE_TEXT_EVENT,300)
-                top_item=None
-
-        elif event.type == REMOVE_TEXT_EVENT:
-            if(displayed_text==[]):
-                pygame.time.set_timer(REMOVE_TEXT_EVENT, 0)
-            else:
-                del displayed_text[0]
-        
         #Kaufphase starten
         elif event.type==BUY_PHASE_EVENT:
-            if not inbattle:
+            if state!=STATE_BATTLE:
                 del enemy
                 startbutton=buttonGUI.buttonGUI(0, 1000, 950)
                 buttons.add(startbutton)
@@ -225,13 +229,19 @@ while running:
             del startbutton
             TestShop=None
             enemy=character.enemy(10*(1.1)**curRound,curRound)
-            inbattle=True
+            state=STATE_BATTLE
             ...
+
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button==1 and state==STATE_MENU:
+            if menu_start_button.rect.collidepoint(x,y):
+                start_new_game()
+            elif menu_quit_button.rect.collidepoint(x,y):
+                running=False
 
         #Kaufen mit Linksclick
         elif event.type == pygame.MOUSEBUTTONDOWN  and event.button==1:
             #Wenn battle --> nicht kaufen/verkaufen
-            if inbattle:
+            if state==STATE_BATTLE:
                 continue
             collided_slots = []
             if ShopSlots is not None:
