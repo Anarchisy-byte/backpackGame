@@ -76,18 +76,24 @@ class character(pygame.sprite.Sprite):
             screen.blit(self.armor_sprite.image, self.armor_sprite.rect)
     
     def attack(self, gegner):
+        sum=0
         for slot in self.backpack.sprites:
             for itemslot in slot:
                 if itemslot.item is not None:
                     if(gegner.armor<=0):
                         gegner.health-=itemslot.item.dmgVal
+                        sum+=itemslot.item.dmgVal
                     else:
                         gegner.armor-=itemslot.item.dmgVal
+                        sum+=itemslot.item.dmgVal
                 else:
                     if(gegner.armor<=0):
                         gegner.health-=1
+                        sum+=1
                     else:
                         gegner.armor-=1
+                        sum+=1
+        return sum
     
     def defense(self):
         self.armor=0

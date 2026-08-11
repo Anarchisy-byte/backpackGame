@@ -142,6 +142,10 @@ def draw_item_tooltip(screen):
     texts=itemStatsFont.render(slot.item.stats(),True, "black", "white")
     screen.blit(texts, (x-60,y-15))
 
+def create_damage_sprite(screen, dmg, enemy):
+    dmgFont=pygame.font.Font(None,36)
+    screen.blit(dmgFont.render(str(dmg),True, "white", None),(enemy.rect.x, enemy.rect.y-15))
+
 running=True
 while running:
     screen.fill("blue")
@@ -178,11 +182,16 @@ while running:
             player.defense()
             enemy.defense()
             newRound=False
-        player.attack(enemy)
-        pygame.time.wait(100)
-        if(enemy.health<0):
-            enemy.attack(player)
-            pygame.time.wait(100)
+        dmg_dealt=player.attack(enemy)
+        print("Dmg_dealt:"+str(dmg_dealt))
+        dmg_sprite=create_damage_sprite(screen,dmg_dealt,enemy) 
+        pygame.time.wait(400)
+        if(enemy.health>0):
+            dmg_dealt=enemy.attack(player)
+            print("Dmg_dealt:"+str(dmg_dealt))
+            dmg_sprite=create_damage_sprite(screen,dmg_dealt,player) 
+            pygame.time.wait(400)       
+
         if(enemy.health<=0 or player.health<=0):
             print("defeated")
             if(player.health<=0):
