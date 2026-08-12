@@ -116,7 +116,7 @@ def start_new_game():
     buttons=itemgroup()
     buttons.add(startbutton)
     enemy=None
-    player=character.player(10,1,10, TestBackpack)
+    player=character.player(50,1,10, TestBackpack)
     curRound=1
     newRound=True
 
@@ -179,6 +179,8 @@ while running:
         print("attack")
         print(player.armor, player.health, enemy.armor, enemy.health)
         if newRound:
+            player.apply_maxhealth()
+            enemy.apply_maxhealth()
             player.defense()
             enemy.defense()
             newRound=False
@@ -232,8 +234,6 @@ while running:
                 buttons.add(startbutton)
                 buttons.add(refreshButton)
                 enemy=None
-                player.maxhealth+=1
-                player.health=player.maxhealth
                 TestShop=load_shop()#übergabe itempool
                 TestShop.draw(screen)
                 ShopSlots=itemgroup()
@@ -246,7 +246,7 @@ while running:
             del startbutton
             del refreshButton
             TestShop=None
-            enemy=character.enemy(10*(1.1)**curRound,curRound)
+            enemy=character.enemy(50,curRound)
             state=STATE_BATTLE
             ...
 

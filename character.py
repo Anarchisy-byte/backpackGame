@@ -16,6 +16,7 @@ class character(pygame.sprite.Sprite):
         self.imgSprites=self.character_sprites()
         self.image=self.imgSprites[random.randint(0,len(self.imgSprites)-1)]
         self.rect=self.image.get_rect()
+        self.base_health=health
         self.health=health
         self.maxhealth=health #health sprite object?? --> Anzeigen der Hp
         self.health_sprite=None
@@ -96,6 +97,15 @@ class character(pygame.sprite.Sprite):
                         sum+=1
         return sum
     
+    def apply_maxhealth(self):
+        bonus=0
+        for slot in self.backpack.sprites:
+            for itemslot in slot:
+                if itemslot.item is not None:
+                    bonus+=itemslot.item.hpVal
+        self.maxhealth=self.base_health+bonus
+        self.health=self.maxhealth
+
     def defense(self):
         self.armor=0
         for slot in self.backpack.sprites:
@@ -119,6 +129,7 @@ class player(character):
 
     def __init__(self, health, lv, gold, backpack):
         super().__init__()
+        self.base_health=health
         self.health=health
         self.maxhealth=health
         self.lv=lv
@@ -130,6 +141,7 @@ class player(character):
 class enemy(character):
     def __init__(self, health, lv):
         super().__init__()
+        self.base_health=health
         self.health=health
         self.maxhealth=health
         self.lv=lv
@@ -160,6 +172,7 @@ class enemy(character):
                         itemID=data['item_id'],
                         dmgVal=data['attack'],
                         defVal=data['armor'],
+                        hpVal=data['hp'],
                         space_x=1,
                         space_y=1
                     )

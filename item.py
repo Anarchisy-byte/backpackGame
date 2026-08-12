@@ -24,7 +24,7 @@ class item(pygame.sprite.Sprite):
             item.load_item_sprites()
         return item_sprites
 
-    def __init__(self, image, name, posx,posy, cost=0, rarity="", itemtype="", itemID="", dmgVal=0, defVal=0, space_x=1, space_y=1):
+    def __init__(self, image, name, posx,posy, cost=0, rarity="", itemtype="", itemID="", dmgVal=0, defVal=0, hpVal=0, space_x=1, space_y=1):
         super().__init__()
         self.image = image
         self.rect=self.image.get_rect(center=(posx,posy))
@@ -37,6 +37,7 @@ class item(pygame.sprite.Sprite):
         self.itemID=itemID
         self.dmgVal=dmgVal
         self.defVal=defVal
+        self.hpVal=hpVal
         self.space_x=space_x
         self.space_y=space_y
         self.layer=1
@@ -51,4 +52,4 @@ class item(pygame.sprite.Sprite):
         screen.blit(self.image, self.rect)
     
     def stats(self):
-        return f"cost: {self.cost} dmgVal: {self.dmgVal} defVal: {self.defVal}"
+        return f"cost: {self.cost} dmgVal: {self.dmgVal} defVal: {self.defVal} hpVal: {self.hpVal}"

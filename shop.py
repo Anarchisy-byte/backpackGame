@@ -54,6 +54,7 @@ class shop(pygame.sprite.Sprite):
                         itemID=data['item_id'],
                         dmgVal=data['attack'],
                         defVal=data['armor'],
+                        hpVal=data['hp'],
                         space_x=1,
                         space_y=1
                     )
