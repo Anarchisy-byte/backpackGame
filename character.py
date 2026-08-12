@@ -155,7 +155,7 @@ class enemy(character):
         self.lv=lv
         self.rect.x=1050
         self.rect.y=500
-        self.backpack=backpack.backpack(3,2,1300,600)
+        self.backpack=backpack.backpack(3,2,1300,420)
 
         for arr in self.backpack.sprites:
             for slot in arr:

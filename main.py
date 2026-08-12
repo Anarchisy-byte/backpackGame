@@ -118,7 +118,7 @@ def load_shop(item_pools=None):
 def start_new_game():
     global TestBackpack, BackPackSlots, ShopSlots, TestShop, startbutton, buttons, enemy, player, curRound, newRound, state
 
-    TestBackpack=backpack.backpack(3,2,200,600)
+    TestBackpack=backpack.backpack(3,2,60,420)
     BackPackSlots=itemgroup()
     BackPackSlots.add(TestBackpack.returnItemslots())
     ShopSlots=None
@@ -156,6 +156,26 @@ def draw_item_tooltip(screen):
 def create_damage_sprite(screen, dmg, enemy):
     dmgFont=pygame.font.Font(None,36+random.randint(0,10))
     screen.blit(dmgFont.render(str(dmg),True, "white", None),(enemy.rect.x+random.randint(-5,5), enemy.rect.y-15+random.randint(-15,1)))
+"""
+def create_attack_animation(screen, enemy, mirrored=False):
+    frameSheet=pygame.image.load("images/character/pixel_art_sword_slash_sprites.png")
+    frames=[]
+    w=frameSheet.get_width()
+    h=frameSheet.get_height()
+    for row in range(4):
+        for colom in range(4):
+            f=frameSheet.subsurface((w/9*row,h/9*colom,w/9,h/9))
+            frames.append(pygame.transform.scale_by(f,5))
+    if mirrored:
+        frames=[pygame.transform.flip(frame,mirrored,False) for frame in frames]
+    attack_sprite=pygame.sprite.Sprite()
+    attack_sprite.frames=frames
+    attack_sprite.rect=frames[0].get_rect(center=(enemy.rect.x,enemy.rect.y))
+    for frame in range(9):
+        pygame.time.wait(100)
+        screen.blit(attack_sprite.frames[frame],attack_sprite.rect)
+    attack_sprite.kill()
+"""    
 
 running=True
 while running:
@@ -199,11 +219,13 @@ while running:
             continue
         dmg_dealt=player.attack(enemy)
         print("Dmg_dealt:"+str(dmg_dealt))
+        #create_attack_animation(screen,enemy)
         dmg_sprite=create_damage_sprite(screen,dmg_dealt,enemy) 
         pygame.time.wait(400)
         if(enemy.health>0):
             dmg_dealt=enemy.attack(player)
             print("Dmg_dealt:"+str(dmg_dealt))
+            #create_attack_animation(screen,player,True)
             dmg_sprite=create_damage_sprite(screen,dmg_dealt,player) 
             pygame.time.wait(400)       
 

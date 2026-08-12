@@ -4,6 +4,7 @@ import Itemslot
 class backpack(pygame.sprite.Sprite):
     #https://www.pygame.org/docs/ref/sprite.html
 
+
     def __init__(self, rows, colom, posx, posy):
         super().__init__()
         self.sprites=[[None for i in range(colom)] for i in range(rows)]
@@ -12,9 +13,9 @@ class backpack(pygame.sprite.Sprite):
         self.colom=colom
         for row in range(rows):
             for c in range(colom):
-                self.sprites[row][c]=Itemslot.Itemslot(posx+abstand*c,posy+abstand*row)
-        self.image=pygame.image.load("images/backpack-inventory1.png")
-        self.image=pygame.transform.scale_by(self.image,(2,2))
+                self.sprites[row][c]=Itemslot.Itemslot(posx+180+abstand*c,posy+140+abstand*row)
+        self.image=pygame.image.load("images/backpack.png")
+        self.image=pygame.transform.scale_by(self.image,(1.3,2))
         self.rect=self.image.get_rect()
         self.rect.x=posx
         self.rect.y=posy
