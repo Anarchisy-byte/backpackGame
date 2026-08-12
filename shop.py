@@ -3,6 +3,7 @@ import pygame
 from Itemslot import Itemslot
 from item import item
 import item_import
+import rarity_odds
 
 class shop(pygame.sprite.Sprite):
 
@@ -27,14 +28,13 @@ class shop(pygame.sprite.Sprite):
     def returnItemslots(self):
         return self.listItemSlots
 
-    def fillRandomItem(self,pools=None):
-        rarities = ["common", "uncommon", "rare", "epic", "legendary"]
+    def fillRandomItem(self,curRound,pools=None):
         for slot in self.listItemSlots:
             if slot.is_empty():
-                wahl_rarity = random.choices(rarities) #später mit weigths wahrscheinlichkeiten für einzelne rarities festlegen
+                wahl_rarity = rarity_odds.roll_rarity(curRound)
                 if pools is None:
-                    pools=item_import.itempools.item_pools()
-                pool = pools.get(wahl_rarity[0], [])
+                    pools=item_import.item_pools()
+                pool = pools.get(wahl_rarity, [])
                 if pool:
                     data = random.choice(pool)
                     #Erstellt ein Item-Objekt basierend auf den Daten aus dem Pool
@@ -59,14 +59,14 @@ class shop(pygame.sprite.Sprite):
                     )
                     slot.addItem(new_item)
 
-    def refresh(self, player, pools=None):
+    def refresh(self, player, curRound, pools=None):
         """Leert den Shop und befüllt ihn neu"""
         if player.gold >= self.refresh_cost:
             player.gold -= self.refresh_cost
             self.refresh_cost+=1
             for slot in self.listItemSlots:
                 slot.removeItem() # Slot leeren
-            self.fillRandomItem(pools=None)
+            self.fillRandomItem(curRound,pools=pools)
             return True
         return False
     """

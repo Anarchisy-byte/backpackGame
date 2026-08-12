@@ -101,7 +101,7 @@ menu_font=pygame.font.Font(None, 40)
 
 def load_shop(item_pools=None):
     TestShop=shop.shop(950,300)
-    TestShop.refresh(player,item_pools)
+    TestShop.refresh(player,curRound,item_pools)
     return TestShop
 
 def start_new_game():
@@ -116,7 +116,7 @@ def start_new_game():
     buttons=itemgroup()
     buttons.add(startbutton)
     enemy=None
-    player=character.player(10,1,100, TestBackpack)
+    player=character.player(10,1,10, TestBackpack)
     curRound=1
     newRound=True
 
@@ -198,7 +198,7 @@ while running:
                 state=STATE_MENU
             else:
                 state=STATE_SHOP
-                player.gold+=curRound
+                player.gold+=10
                 curRound+=1
                 newRound=True
                 pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
@@ -219,7 +219,7 @@ while running:
                 pygame.mixer.music.set_volume(pygame.mixer.music.get_volume()-0.1)
             elif event.key == pygame.K_r:
                 if state==STATE_SHOP:
-                    TestShop.refresh(player)
+                    TestShop.refresh(player,curRound)
                     print(player.gold)
 
 
@@ -275,7 +275,7 @@ while running:
             
             if (buttons.has(collided_slots[-1])):
                 if collided_slots[-1] is refreshButton:
-                    TestShop.refresh(player)
+                    TestShop.refresh(player,curRound)
                     accept.play()
                     continue
                 pygame.event.post(pygame.event.Event(ENTER_BATTLE_PHASE_EVENT))

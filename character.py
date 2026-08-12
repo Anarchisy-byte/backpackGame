@@ -4,6 +4,7 @@ import item_import
 import backpack
 import shop
 import random
+import rarity_odds
 
 class character(pygame.sprite.Sprite):
     
@@ -136,12 +137,11 @@ class enemy(character):
         self.rect.y=500
         self.backpack=backpack.backpack(3,2,1300,600)
 
-        rarities = ["common", "uncommon", "rare", "epic", "legendary"]
         for arr in self.backpack.sprites:
             for slot in arr:
-                wahl_rarity = random.choices(rarities) #später mit weigths wahrscheinlichkeiten für einzelne rarities festlegen
-                pools=item_import.itempools.item_pools()
-                pool = pools.get(wahl_rarity[0], [])
+                wahl_rarity = rarity_odds.roll_rarity(self.lv)
+                pools=item_import.item_pools()
+                pool = pools.get(wahl_rarity, [])
                 if pool:
                     data = random.choice(pool)
                     #Erstellt ein Item-Objekt basierend auf den Daten aus dem Pool
