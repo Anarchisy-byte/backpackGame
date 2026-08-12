@@ -36,6 +36,7 @@ pygame.init()
 MousePos=pygame.font.Font(None,36)
 screen=pygame.display.set_mode((1920,1280), pygame.SCALED)
 clock=pygame.time.Clock()
+pygame.display.set_caption("Backpackgame")
 
 
 class curser(pygame.sprite.Sprite):
@@ -89,6 +90,7 @@ pygame.mixer.music.play()
 pygame.mixer.music.set_volume(0.3)
 purchaseSound=pygame.mixer.Sound("sounds/snd_purchase.wav")
 accept=pygame.mixer.Sound("sounds/Accept.mp3")
+gameOverSound=pygame.mixer.Sound("sounds/game_over_bad_chest.wav")
 
 #Background_images
 Background_images=[]
@@ -104,7 +106,8 @@ Background_images.append(img)
 img=pygame.image.load("images/background/parallax_forest_pack/parallax_forest_pack/layers/parallax-forest-front-trees.png")
 img=pygame.transform.smoothscale(img, (1920, 1280))
 Background_images.append(img)
-
+background_last_update=0
+background_update_delay=200
 
 
 #Platzhalter bis start_new_game() das erste Mal läuft
@@ -125,7 +128,7 @@ state=STATE_MENU
 #Menü-Buttons (unabhängig vom Spielstand, nur einmal erzeugt)
 menu_start_button=buttonGUI.buttonGUI(0, 700, 500)
 menu_quit_button=buttonGUI.buttonGUI(4, 700, 700)
-menu_font=pygame.font.Font(None, 40)
+menu_font=pygame.font.Font(None, 100)
 
 def load_shop(item_pools=None):
     TestShop=shop.shop(950,300)
@@ -173,49 +176,63 @@ def draw_item_tooltip(screen):
 def create_damage_sprite(screen, dmg, enemy):
     dmgFont=pygame.font.Font(None,36+random.randint(0,10))
     screen.blit(dmgFont.render(str(dmg),True, "white", None),(enemy.rect.x+random.randint(-5,5), enemy.rect.y-15+random.randint(-15,1)))
-"""
-def create_attack_animation(screen, enemy, mirrored=False):
+
+def create_attack_animation(screen, cords, mirrored=False):
     frameSheet=pygame.image.load("images/character/pixel_art_sword_slash_sprites.png")
     frames=[]
     w=frameSheet.get_width()
     h=frameSheet.get_height()
-    for row in range(4):
-        for colom in range(4):
-            f=frameSheet.subsurface((w/9*row,h/9*colom,w/9,h/9))
+    for row in range(3):
+        for colom in range(3):
+            f=frameSheet.subsurface((w/3*row,h/3*colom,w/3,h/3))
             frames.append(pygame.transform.scale_by(f,5))
     if mirrored:
         frames=[pygame.transform.flip(frame,mirrored,False) for frame in frames]
     attack_sprite=pygame.sprite.Sprite()
     attack_sprite.frames=frames
-    attack_sprite.rect=frames[0].get_rect(center=(enemy.rect.x,enemy.rect.y))
+    x=-250
+    if mirrored:
+        x*=-1
+    attack_sprite.rect=frames[0].get_rect(center=cords)
     for frame in range(9):
-        pygame.time.wait(100)
+        pygame.time.wait(20)
         screen.blit(attack_sprite.frames[frame],attack_sprite.rect)
+        pygame.display.update()
     attack_sprite.kill()
-"""    
+    pygame.display.update()
 
 running=True
 while running:
     
 
     if state==STATE_MENU:
-        screen.fill("blue")
+        background_new_update=pygame.time.get_ticks()
+        if(background_new_update-background_last_update>=background_update_delay):
+            background_last_update=pygame.time.get_ticks()
+            for layer in Background_images[:-1]:
+                screen.blit(layer,(random.randint(-2,2), random.randint(-2,2)))
+            screen.blit(Background_images[-1],(0,0))
         menu_start_button.draw(screen)
-        screen.blit(menu_font.render("Start", True, "black"), menu_start_button.rect.topleft)
+        screen.blit(menu_font.render("Backpackgame", True, "black",None),(1920/2-250,300))
         menu_quit_button.draw(screen)
-        screen.blit(menu_font.render("Beenden", True, "black"), menu_quit_button.rect.topleft)
+        #screen.blit(menu_font.render("Beenden", True, "black"), menu_quit_button.rect.topleft)
 
     else:
         if state==STATE_SHOP and TestShop is not None:
-            screen.fill("blue")
+            shop_background_img=pygame.image.load("images/background/shop_Background.jpeg")
+            shop_background_img=pygame.transform.scale_by(shop_background_img,3)
+            screen.blit(shop_background_img,(0,0))
             TestShop.draw(screen)
             startbutton.draw(screen)
             refreshButton.draw(screen)
 
         elif state==STATE_BATTLE and enemy is not None:
-            for layer in Background_images[:-1]:
-                screen.blit(layer,(random.randint(-2,2), random.randint(-2,2)))
-            screen.blit(Background_images[-1],(0,0))
+            background_new_update=pygame.time.get_ticks()
+            if(background_new_update-background_last_update>=background_update_delay):
+                background_last_update=pygame.time.get_ticks()
+                for layer in Background_images[:-1]:
+                    screen.blit(layer,(random.randint(-2,2), random.randint(-2,2)))
+                screen.blit(Background_images[-1],(0,0))
             enemy.draw(screen)
         curser.update(screen)
         BackPackSlots.draw(screen)
@@ -238,23 +255,30 @@ while running:
             player.defense()
             enemy.defense()
             newRound=False
+            pygame.display.update()
             #verhindert nicht laden der sprites bei Instakill
             continue
         dmg_dealt=player.attack(enemy)
         print("Dmg_dealt:"+str(dmg_dealt))
-        #create_attack_animation(screen,enemy)
-        dmg_sprite=create_damage_sprite(screen,dmg_dealt,enemy) 
-        pygame.time.wait(400)
+        create_attack_animation(screen,(800,660))
+        dmg_sprite=create_damage_sprite(screen,dmg_dealt,enemy)
+        pygame.time.wait(30) 
         if(enemy.health>0):
             dmg_dealt=enemy.attack(player)
             print("Dmg_dealt:"+str(dmg_dealt))
-            #create_attack_animation(screen,player,True)
-            dmg_sprite=create_damage_sprite(screen,dmg_dealt,player) 
-            pygame.time.wait(400)       
+            create_attack_animation(screen,(1000,660),True)
+            dmg_sprite=create_damage_sprite(screen,dmg_dealt,player)
+            pygame.time.wait(30)       
 
         if(enemy.health<=0 or player.health<=0):
             print("defeated")
             if(player.health<=0):
+                screen.fill("black")
+                gameOverSound.play()
+                screen.blit(menu_font.render("Game Over", True, "white",None),(1920/2-250,300))
+                pygame.display.update()
+                while(pygame.mixer.get_busy()):
+                    pygame.time.wait(1)
                 state=STATE_MENU
             else:
                 state=STATE_SHOP
