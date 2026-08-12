@@ -6,7 +6,7 @@ class item(pygame.sprite.Sprite):
     def load_item_sprites():
         global item_sprites
         pygame.init()
-        screen=pygame.display.set_mode((1920,1280))
+        screen=pygame.display.set_mode((1920,1280))#, pygame.SCALED)
         itemSheet=pygame.image.load("images/Items/roguelikeitems.png").convert_alpha()
         item_texturesize=16
         for row in range(13):
@@ -52,4 +52,4 @@ class item(pygame.sprite.Sprite):
         screen.blit(self.image, self.rect)
     
     def stats(self):
-        return f"cost: {self.cost} dmgVal: {self.dmgVal} defVal: {self.defVal} hpVal: {self.hpVal}"
+        return f"rarity: {self.rarity} cost: {self.cost} dmgVal: {self.dmgVal} defVal: {self.defVal} hpVal: {self.hpVal}"

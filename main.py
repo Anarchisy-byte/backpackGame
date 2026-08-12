@@ -7,7 +7,16 @@ import backpack
 import shop
 import character
 import os
+import sys
 import buttonGUI
+
+#bildschirm scaling
+if sys.platform=="win32":
+    import ctypes
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
 
 #Bildschirmzustände
 STATE_MENU = "menu"
@@ -20,10 +29,11 @@ print("SDL_VIDEODRIVER =", os.environ.get("SDL_VIDEODRIVER"))
 print("DISPLAY =", os.environ.get("DISPLAY"))
 print("XAUTHORITY =", os.environ.get("XAUTHORITY"))
 
+os.environ['SDL_VIDEO_WINDOW_POS']='0,0'
 pygame.init()
 #Mouse Position wird getracked um Objekte an die richtigen Stellen zu platzieren
 MousePos=pygame.font.Font(None,36)
-screen=pygame.display.set_mode((1920,1280))
+screen=pygame.display.set_mode((1920,1280), pygame.SCALED)
 clock=pygame.time.Clock()
 
 
@@ -317,7 +327,7 @@ while running:
                 print(player.gold)
                 BackPackSlots.move_to_front(slot)
                 item_to_sell = slot.item
-                player.gold += item_to_sell.cost
+                player.gold += item_to_sell.cost//2
                 TestBackpack.removeItem(item_to_sell) 
                 del item_to_sell
                 purchaseSound.play()

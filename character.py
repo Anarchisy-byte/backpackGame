@@ -81,20 +81,17 @@ class character(pygame.sprite.Sprite):
         sum=0
         for slot in self.backpack.sprites:
             for itemslot in slot:
-                if itemslot.item is not None:
-                    if(gegner.armor<=0):
-                        gegner.health-=itemslot.item.dmgVal
-                        sum+=itemslot.item.dmgVal
+                dmg = itemslot.item.dmgVal if itemslot.item is not None else 1
+                if(gegner.armor>0):
+                    if(dmg>gegner.armor):
+                        overflow=dmg-gegner.armor
+                        gegner.armor=0
+                        gegner.health-=overflow
                     else:
-                        gegner.armor-=itemslot.item.dmgVal
-                        sum+=itemslot.item.dmgVal
+                        gegner.armor-=dmg
                 else:
-                    if(gegner.armor<=0):
-                        gegner.health-=1
-                        sum+=1
-                    else:
-                        gegner.armor-=1
-                        sum+=1
+                    gegner.health-=dmg
+                sum+=dmg
         return sum
     
     def apply_maxhealth(self):
@@ -114,8 +111,6 @@ class character(pygame.sprite.Sprite):
                     self.armor+=itemslot.item.defVal
         if(self.armor==0):
             return
-        self.armor*=int(0.1*self.maxhealth)
-        self.armor=int(self.armor)
         width=3*self.armor*3
         height=5
         surf=pygame.Surface((width,height))
