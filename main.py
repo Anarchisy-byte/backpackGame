@@ -109,6 +109,21 @@ Background_images.append(img)
 background_last_update=0
 background_update_delay=200
 
+#Shop-Hintergrund (einmalig laden statt jeden Frame)
+shop_background_img=pygame.image.load("images/background/shop_Background.jpeg")
+shop_background_img=pygame.transform.scale_by(shop_background_img,3)
+
+#Attack-Animation Frames (einmalig laden statt bei jedem Angriff)
+attack_frameSheet=pygame.image.load("images/character/pixel_art_sword_slash_sprites.png")
+attack_frames_right=[]
+_w=attack_frameSheet.get_width()
+_h=attack_frameSheet.get_height()
+for _row in range(3):
+    for _colom in range(3):
+        _f=attack_frameSheet.subsurface((_w/3*_row,_h/3*_colom,_w/3,_h/3))
+        attack_frames_right.append(pygame.transform.scale_by(_f,5))
+attack_frames_left=[pygame.transform.flip(_f,True,False) for _f in attack_frames_right]
+
 
 #Platzhalter bis start_new_game() das erste Mal läuft
 TestBackpack=None
@@ -178,16 +193,7 @@ def create_damage_sprite(screen, dmg, enemy):
     screen.blit(dmgFont.render(str(dmg),True, "white", None),(enemy.rect.x+random.randint(-5,5), enemy.rect.y-15+random.randint(-15,1)))
 
 def create_attack_animation(screen, cords, mirrored=False):
-    frameSheet=pygame.image.load("images/character/pixel_art_sword_slash_sprites.png")
-    frames=[]
-    w=frameSheet.get_width()
-    h=frameSheet.get_height()
-    for row in range(3):
-        for colom in range(3):
-            f=frameSheet.subsurface((w/3*row,h/3*colom,w/3,h/3))
-            frames.append(pygame.transform.scale_by(f,5))
-    if mirrored:
-        frames=[pygame.transform.flip(frame,mirrored,False) for frame in frames]
+    frames=attack_frames_left if mirrored else attack_frames_right
     attack_sprite=pygame.sprite.Sprite()
     attack_sprite.frames=frames
     x=-250
@@ -219,8 +225,6 @@ while running:
 
     else:
         if state==STATE_SHOP and TestShop is not None:
-            shop_background_img=pygame.image.load("images/background/shop_Background.jpeg")
-            shop_background_img=pygame.transform.scale_by(shop_background_img,3)
             screen.blit(shop_background_img,(0,0))
             TestShop.draw(screen)
             startbutton.draw(screen)

@@ -94,7 +94,9 @@ class character(pygame.sprite.Sprite):
         sum=0
         for slot in self.backpack.sprites:
             for itemslot in slot:
-                dmg = itemslot.item.dmgVal if itemslot.item is not None else 1
+                if itemslot.item is None:
+                    continue
+                dmg = itemslot.item.dmgVal
                 if(gegner.armor>0):
                     if(dmg>gegner.armor):
                         overflow=dmg-gegner.armor
