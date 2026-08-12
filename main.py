@@ -90,6 +90,23 @@ pygame.mixer.music.set_volume(0.3)
 purchaseSound=pygame.mixer.Sound("sounds/snd_purchase.wav")
 accept=pygame.mixer.Sound("sounds/Accept.mp3")
 
+#Background_images
+Background_images=[]
+img=pygame.image.load("images/background/parallax_forest_pack/parallax_forest_pack/layers/parallax-forest-lights.png")
+img=pygame.transform.smoothscale(img, (1920, 1280))
+Background_images.append(img)
+img=pygame.image.load("images/background/parallax_forest_pack/parallax_forest_pack/layers/parallax-forest-back-trees.png")
+img=pygame.transform.smoothscale(img, (1920, 1280))
+Background_images.append(img)
+img=pygame.image.load("images/background/parallax_forest_pack/parallax_forest_pack/layers/parallax-forest-middle-trees.png")
+img=pygame.transform.smoothscale(img, (1920, 1280))
+Background_images.append(img)
+img=pygame.image.load("images/background/parallax_forest_pack/parallax_forest_pack/layers/parallax-forest-front-trees.png")
+img=pygame.transform.smoothscale(img, (1920, 1280))
+Background_images.append(img)
+
+
+
 #Platzhalter bis start_new_game() das erste Mal läuft
 TestBackpack=None
 BackPackSlots=None
@@ -179,27 +196,33 @@ def create_attack_animation(screen, enemy, mirrored=False):
 
 running=True
 while running:
-    screen.fill("blue")
-    curser.update(screen)
+    
 
     if state==STATE_MENU:
+        screen.fill("blue")
         menu_start_button.draw(screen)
         screen.blit(menu_font.render("Start", True, "black"), menu_start_button.rect.topleft)
         menu_quit_button.draw(screen)
         screen.blit(menu_font.render("Beenden", True, "black"), menu_quit_button.rect.topleft)
 
     else:
-        BackPackSlots.draw(screen)
-        screen.blit(tMoney.render("Gold:"+str(player.gold),True, "black", "white"),(10,45))
-        player.draw(screen)
-
         if state==STATE_SHOP and TestShop is not None:
+            screen.fill("blue")
             TestShop.draw(screen)
             startbutton.draw(screen)
             refreshButton.draw(screen)
 
         elif state==STATE_BATTLE and enemy is not None:
+            for layer in Background_images[:-1]:
+                screen.blit(layer,(random.randint(-2,2), random.randint(-2,2)))
+            screen.blit(Background_images[-1],(0,0))
             enemy.draw(screen)
+        curser.update(screen)
+        BackPackSlots.draw(screen)
+        screen.blit(tMoney.render("Gold:"+str(player.gold),True, "black", "white"),(10,45))
+        player.draw(screen)
+
+        
 
         draw_item_tooltip(screen)
 
