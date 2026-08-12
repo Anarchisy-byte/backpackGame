@@ -56,7 +56,8 @@ class shop(pygame.sprite.Sprite):
                         defVal=data['armor'],
                         hpVal=data['hp'],
                         space_x=1,
-                        space_y=1
+                        space_y=1,
+                        atkSpeed=data['cooldown']
                     )
                     slot.addItem(new_item)
 

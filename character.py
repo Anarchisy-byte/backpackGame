@@ -90,13 +90,27 @@ class character(pygame.sprite.Sprite):
             self.updateArmorSprite()
             screen.blit(self.armor_sprite.image, self.armor_sprite.rect)
     
-    def attack(self, gegner):
-        sum=0
+    def reset_cooldowns(self):
         for slot in self.backpack.sprites:
             for itemslot in slot:
-                if itemslot.item is None:
+                if itemslot.item is not None:
+                    itemslot.item.cooldown=itemslot.item.atkSpeed
+
+    def update_combat(self, dt, gegner):
+        """Zählt den Cooldown jedes Items runter und greift bei null an."""
+        dmg_total=0
+        for slot in self.backpack.sprites:
+            for itemslot in slot:
+                item=itemslot.item
+                if item is None:
                     continue
-                dmg = itemslot.item.dmgVal
+                #reine rüstungs und hp items werden ignoriert
+                if item.dmgVal<=0:
+                    continue
+                item.cooldown-=dt
+                if item.cooldown>0:
+                    continue
+                dmg=item.dmgVal
                 if(gegner.armor>0):
                     if(dmg>gegner.armor):
                         overflow=dmg-gegner.armor
@@ -106,8 +120,12 @@ class character(pygame.sprite.Sprite):
                         gegner.armor-=dmg
                 else:
                     gegner.health-=dmg
-                sum+=dmg
-        return sum
+                dmg_total+=dmg
+                
+                item.cooldown+=item.atkSpeed
+                if gegner.health<=0:
+                    return dmg_total
+        return dmg_total
     
     def apply_maxhealth(self):
         bonus=0
@@ -184,7 +202,8 @@ class enemy(character):
                         defVal=data['armor'],
                         hpVal=data['hp'],
                         space_x=1,
-                        space_y=1
+                        space_y=1,
+                        atkSpeed=data['cooldown']
                     )
                     slot.addItem(new_item)
     

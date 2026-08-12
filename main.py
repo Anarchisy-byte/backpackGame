@@ -139,6 +139,7 @@ curRound=1
 newRound=True
 
 state=STATE_MENU
+dt=1/60 #sekunden seit letztem frame, für die Item-Cooldowns im Kampf
 
 #Menü-Buttons (unabhängig vom Spielstand, nur einmal erzeugt)
 menu_start_button=buttonGUI.buttonGUI(0, 700, 500)
@@ -169,6 +170,7 @@ def start_new_game():
     state=STATE_SHOP
     pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
 
+itemNameFont=pygame.font.Font(None,26)
 itemStatsFont=pygame.font.Font(None,20)
 
 def draw_item_tooltip(screen):
@@ -185,8 +187,30 @@ def draw_item_tooltip(screen):
     if slot.item is None:
         return
 
-    texts=itemStatsFont.render(slot.item.stats(),True, "black", "white")
-    screen.blit(texts, (x-60,y-15))
+    it=slot.item
+    color=it.rarity_color()
+    name_surf=itemNameFont.render(it.name,True,color)
+    stat_surfs=[itemStatsFont.render(line,True,"white") for line in it.stats_lines()]
+
+    padding=8
+    line_gap=3
+    width=max([name_surf.get_width()]+[s.get_width() for s in stat_surfs])+padding*2
+    height=name_surf.get_height()+line_gap+sum(s.get_height()+line_gap for s in stat_surfs)+padding*2
+
+    box=pygame.Surface((width,height),pygame.SRCALPHA)
+    box.fill((20,20,20,225))
+    pygame.draw.rect(box,color,box.get_rect(),width=2)
+
+    cursor_y=padding
+    box.blit(name_surf,(padding,cursor_y))
+    cursor_y+=name_surf.get_height()+line_gap
+    for s in stat_surfs:
+        box.blit(s,(padding,cursor_y))
+        cursor_y+=s.get_height()+line_gap
+
+    pos_x=min(max(x-60,0),1920-width)
+    pos_y=min(max(y-height-15,0),1280-height)
+    screen.blit(box,(pos_x,pos_y))
 
 def create_damage_sprite(screen, dmg, enemy):
     dmgFont=pygame.font.Font(None,36+random.randint(0,10))
@@ -258,21 +282,23 @@ while running:
             enemy.apply_maxhealth()
             player.defense()
             enemy.defense()
+            player.reset_cooldowns()
+            enemy.reset_cooldowns()
             newRound=False
             pygame.display.update()
             #verhindert nicht laden der sprites bei Instakill
             continue
-        dmg_dealt=player.attack(enemy)
-        print("Dmg_dealt:"+str(dmg_dealt))
-        create_attack_animation(screen,(800,660))
-        dmg_sprite=create_damage_sprite(screen,dmg_dealt,enemy)
-        pygame.time.wait(30) 
-        if(enemy.health>0):
-            dmg_dealt=enemy.attack(player)
+        dmg_dealt=player.update_combat(dt,enemy)
+        if dmg_dealt>0:
             print("Dmg_dealt:"+str(dmg_dealt))
-            create_attack_animation(screen,(1000,660),True)
-            dmg_sprite=create_damage_sprite(screen,dmg_dealt,player)
-            pygame.time.wait(30)       
+            create_attack_animation(screen,(800,660))
+            dmg_sprite=create_damage_sprite(screen,dmg_dealt,enemy)
+        if(enemy.health>0):
+            dmg_dealt=enemy.update_combat(dt,player)
+            if dmg_dealt>0:
+                print("Dmg_dealt:"+str(dmg_dealt))
+                create_attack_animation(screen,(1000,660),True)
+                dmg_sprite=create_damage_sprite(screen,dmg_dealt,player)
 
         if(enemy.health<=0 or player.health<=0):
             print("defeated")
@@ -410,9 +436,10 @@ while running:
                 TestBackpack.update()
 
     pygame.display.update()
-    
-    clock.tick(60)
-    
+
+#umrechnung von frames in sekunden für item-cooldowns
+    dt=clock.tick(60)/1000
+
 
 pygame.quit()
 
