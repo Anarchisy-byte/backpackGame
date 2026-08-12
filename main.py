@@ -9,6 +9,7 @@ import character
 import os
 import sys
 import buttonGUI
+import random
 
 #bildschirm scaling
 if sys.platform=="win32":
@@ -153,8 +154,8 @@ def draw_item_tooltip(screen):
     screen.blit(texts, (x-60,y-15))
 
 def create_damage_sprite(screen, dmg, enemy):
-    dmgFont=pygame.font.Font(None,36)
-    screen.blit(dmgFont.render(str(dmg),True, "white", None),(enemy.rect.x, enemy.rect.y-15))
+    dmgFont=pygame.font.Font(None,36+random.randint(0,10))
+    screen.blit(dmgFont.render(str(dmg),True, "white", None),(enemy.rect.x+random.randint(-5,5), enemy.rect.y-15+random.randint(-15,1)))
 
 running=True
 while running:
@@ -194,6 +195,8 @@ while running:
             player.defense()
             enemy.defense()
             newRound=False
+            #verhindert nicht laden der sprites bei Instakill
+            continue
         dmg_dealt=player.attack(enemy)
         print("Dmg_dealt:"+str(dmg_dealt))
         dmg_sprite=create_damage_sprite(screen,dmg_dealt,enemy) 

@@ -47,13 +47,26 @@ class character(pygame.sprite.Sprite):
 
     def updateHealthSprite(self):
         width=3*self.health*3
-        height=5
-        surf=pygame.Surface((width,height))
-        surf.fill("RED")
+        if(width>150):
+            width=150
+        height=40
+        
+        surf=pygame.Surface((150,height),pygame.SRCALPHA)
+        hpSurf=surf.subsurface((0, height-10, width, 10))
+        hpSurf.fill("RED")
+        textfont=pygame.font.Font(None,36)
+        if(self.armor>0):
+            text="Armor:"+str(self.armor)
+            col="grey"
+        else:
+            text="Health"+str(self.health)
+            col="white"
+        textsurf=textfont.render(text, True, col, "black")
+        surf.blit(textsurf,textsurf.get_rect(center=(width//2, 18)))
         if(self.health_sprite is None):
             self.health_sprite=pygame.sprite.Sprite()
         self.health_sprite.image=surf
-        self.health_sprite.rect=self.health_sprite.image.get_rect(topleft=(self.rect.x, self.rect.y))
+        self.health_sprite.rect=self.health_sprite.image.get_rect(topleft=(self.rect.x, self.rect.y-50))
     
     def updateArmorSprite(self):
         if(self.armor>0):
