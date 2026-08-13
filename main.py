@@ -221,8 +221,9 @@ def create_damage_sprite(screen, dmg, enemy):
     dmgFont=pygame.font.Font(None,36+random.randint(0,10))
     screen.blit(dmgFont.render(str(dmg),True, "white", None),(enemy.rect.x+random.randint(-5,5), enemy.rect.y-15+random.randint(-15,1)))
 
-def create_attack_animation(screen, cords, mirrored=False):
+def create_attack_animation(screen, cords, mirrored, dmg_dealt, enemy):
     global meleeSounds
+    create_damage_sprite(screen,dmg_dealt,enemy)
     meleeSounds[random.randint(0,2)].play()
     frames=attack_frames_left if mirrored else attack_frames_right
     attack_sprite=pygame.sprite.Sprite()
@@ -298,14 +299,14 @@ while running:
         dmg_dealt=player.update_combat(dt,enemy)
         if dmg_dealt>0:
             print("Dmg_dealt:"+str(dmg_dealt))
-            create_attack_animation(screen,(800,660))
-            create_damage_sprite(screen,dmg_dealt,enemy)
+            create_attack_animation(screen,(800,660),False,dmg_dealt,enemy)
+            
         if(enemy.health>0):
             dmg_dealt=enemy.update_combat(dt,player)
             if dmg_dealt>0:
                 print("Dmg_dealt:"+str(dmg_dealt))
-                create_attack_animation(screen,(1000,660),True)
-                create_damage_sprite(screen,dmg_dealt,player)
+                create_attack_animation(screen,(1000,660),True,dmg_dealt,player)
+                
 
         if(enemy.health<=0 or player.health<=0):
             print("defeated")
