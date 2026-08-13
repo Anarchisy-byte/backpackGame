@@ -86,7 +86,7 @@ tMoney=pygame.font.Font(None,36)
 
 #BackgroundMusik
 pygame.mixer.music.load("sounds/short_adventure.mp3")
-pygame.mixer.music.play()
+pygame.mixer.music.play(-1)
 vol=0.3
 pygame.mixer.music.set_volume(vol)
 purchaseSound=pygame.mixer.Sound("sounds/snd_purchase.wav")
