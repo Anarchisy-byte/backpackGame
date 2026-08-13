@@ -87,10 +87,15 @@ tMoney=pygame.font.Font(None,36)
 #BackgroundMusik
 pygame.mixer.music.load("sounds/short_adventure.mp3")
 pygame.mixer.music.play()
-pygame.mixer.music.set_volume(0.3)
+vol=0.3
+pygame.mixer.music.set_volume(vol)
 purchaseSound=pygame.mixer.Sound("sounds/snd_purchase.wav")
 accept=pygame.mixer.Sound("sounds/Accept.mp3")
 gameOverSound=pygame.mixer.Sound("sounds/game_over_bad_chest.wav")
+meleeSounds=[]
+meleeSounds.append(pygame.mixer.Sound("sounds/melee sounds/animal melee sound.wav"))
+meleeSounds.append(pygame.mixer.Sound("sounds/melee sounds/melee sound.wav"))
+meleeSounds.append(pygame.mixer.Sound("sounds/melee sounds/sword sound.wav"))
 
 #Background_images
 Background_images=[]
@@ -217,6 +222,8 @@ def create_damage_sprite(screen, dmg, enemy):
     screen.blit(dmgFont.render(str(dmg),True, "white", None),(enemy.rect.x+random.randint(-5,5), enemy.rect.y-15+random.randint(-15,1)))
 
 def create_attack_animation(screen, cords, mirrored=False):
+    global meleeSounds
+    meleeSounds[random.randint(0,2)].play()
     frames=attack_frames_left if mirrored else attack_frames_right
     attack_sprite=pygame.sprite.Sprite()
     attack_sprite.frames=frames
@@ -292,13 +299,13 @@ while running:
         if dmg_dealt>0:
             print("Dmg_dealt:"+str(dmg_dealt))
             create_attack_animation(screen,(800,660))
-            dmg_sprite=create_damage_sprite(screen,dmg_dealt,enemy)
+            create_damage_sprite(screen,dmg_dealt,enemy)
         if(enemy.health>0):
             dmg_dealt=enemy.update_combat(dt,player)
             if dmg_dealt>0:
                 print("Dmg_dealt:"+str(dmg_dealt))
                 create_attack_animation(screen,(1000,660),True)
-                dmg_sprite=create_damage_sprite(screen,dmg_dealt,player)
+                create_damage_sprite(screen,dmg_dealt,player)
 
         if(enemy.health<=0 or player.health<=0):
             print("defeated")
@@ -307,8 +314,10 @@ while running:
                 gameOverSound.play()
                 screen.blit(menu_font.render("Game Over", True, "white",None),(1920/2-250,300))
                 pygame.display.update()
-                while(pygame.mixer.get_busy()):
-                    pygame.time.wait(1)
+                while(pygame.mixer.get_busy() and running):
+                    for event in pygame.event.get():
+                        if event.type== pygame.QUIT:
+                            running=False
                 state=STATE_MENU
             else:
                 state=STATE_SHOP
@@ -325,12 +334,21 @@ while running:
             running=False
         elif event.type == pygame.KEYDOWN:
             #Temporär --> wird geändert zum Gameplayloop
-            if state==STATE_MENU:
-                pass
+            if event.key == pygame.K_m:
+                if pygame.mixer.music.get_volume()==0:
+                    pygame.mixer.music.set_volume(vol)
+                else:
+                    pygame.mixer.music.set_volume(0)
             elif event.key == pygame.K_PLUS:
-                pygame.mixer.music.set_volume(pygame.mixer.music.get_volume()+0.1)
+                vol+=0.1
+                if(vol>1):
+                    vol=1
+                pygame.mixer.music.set_volume(vol)
             elif event.key == pygame.K_MINUS:
-                pygame.mixer.music.set_volume(pygame.mixer.music.get_volume()-0.1)
+                vol-=0.1
+                if(vol<0):
+                    vol=0
+                pygame.mixer.music.set_volume(vol)
             elif event.key == pygame.K_r:
                 if state==STATE_SHOP:
                     TestShop.refresh(player,curRound)

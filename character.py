@@ -26,27 +26,114 @@ class character(pygame.sprite.Sprite):
 
     def character_sprites(self):
         imgSprites=[]
-        Sheet=pygame.image.load("images/character/flat-design-pixel-art-character-element-collection.png").convert_alpha()
-        img=pygame.Rect(145,213, 391, 982)
+        Sheet=pygame.image.load("images/character/oga_preview.png")
+        img=pygame.Rect(16,206, 51, 53)
         sprite_img=Sheet.subsurface(img)
-        sprite_img=pygame.transform.scale_by(sprite_img,0.3)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
         imgSprites.append(sprite_img)
-        img=pygame.Rect(585,232, 392, 963)
+        img=pygame.Rect(89,209, 35, 48)
         sprite_img=Sheet.subsurface(img)
-        sprite_img=pygame.transform.scale_by(sprite_img,0.3)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
         imgSprites.append(sprite_img)
-        img=pygame.Rect(1007,136, 427, 1059)
+        img=pygame.Rect(154,209, 23, 48)
         sprite_img=Sheet.subsurface(img)
-        sprite_img=pygame.transform.scale_by(sprite_img,0.3)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
         imgSprites.append(sprite_img)
-        img=pygame.Rect(1466,213, 390, 982)
+        img=pygame.Rect(214,210, 26, 47)
         sprite_img=Sheet.subsurface(img)
-        sprite_img=pygame.transform.scale_by(sprite_img,0.3)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(341,210, 43, 49)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(403,210, 23, 47)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(28,476, 43, 48)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(90,476, 44, 46)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(139,477, 53, 46)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(204,477, 53, 46)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(273,473, 36, 50)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(328,477, 54, 46)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(12,82, 50, 53)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(84,85, 35, 48)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(155,85, 23, 48)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(217,86, 26, 47)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(270,86, 34, 47)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(322,86, 43, 49)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(404,86,23,47)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(8,351, 44, 49)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(70,351, 44, 47)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(140,352, 54, 47)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(200,352, 53, 37)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(277,348, 36, 51)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
+        imgSprites.append(sprite_img)
+        img=pygame.Rect(324,352, 54, 47)
+        sprite_img=Sheet.subsurface(img)
+        sprite_img=pygame.transform.scale_by(sprite_img,8)
         imgSprites.append(sprite_img)
         return imgSprites
 
     def updateHealthSprite(self):
-        width=3*self.health*3
+        width=self.health
         if(width>150):
             width=150
         height=40
@@ -62,7 +149,7 @@ class character(pygame.sprite.Sprite):
             text="Health"+str(self.health)
             col="white"
         textsurf=textfont.render(text, True, col, "black")
-        surf.blit(textsurf,textsurf.get_rect(center=(width//2, 18)))
+        surf.blit(textsurf,textsurf.get_rect(center=(150//2, 18)))
         if(self.health_sprite is None):
             self.health_sprite=pygame.sprite.Sprite()
         self.health_sprite.image=surf
@@ -70,7 +157,7 @@ class character(pygame.sprite.Sprite):
     
     def updateArmorSprite(self):
         if(self.armor>0):
-            width=3*self.armor*3
+            width=self.armor
             if(width>150):
                 width=150
             height=5
@@ -157,6 +244,8 @@ class player(character):
 
     def __init__(self, health, lv, gold, backpack):
         super().__init__()
+        self.imgSprites=self.character_sprites()
+        self.image=self.imgSprites[random.randint(0,13)]
         self.base_health=health
         self.health=health
         self.maxhealth=health
@@ -169,11 +258,13 @@ class player(character):
 class enemy(character):
     def __init__(self, health, lv):
         super().__init__()
+        self.imgSprites=self.character_sprites()
+        self.image=self.imgSprites[random.randint(14,len(self.imgSprites)-1)]
         self.base_health=health
         self.health=health
         self.maxhealth=health
         self.lv=lv
-        self.rect.x=1050
+        self.rect.x=1000
         self.rect.y=500
         self.backpack=backpack.backpack(3,2,1300,420)
 
