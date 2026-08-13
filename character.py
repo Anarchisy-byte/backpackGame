@@ -255,7 +255,7 @@ class player(character):
     def __init__(self, health, lv, gold, backpack):
         super().__init__()
         self.imgSprites=self.character_sprites()
-        self.image=self.imgSprites[random.randint(0,13)]
+        self.image=self.imgSprites[random.randint(0,12)]
         self.base_health=health
         self.health=health
         self.maxhealth=health
@@ -269,7 +269,7 @@ class enemy(character):
     def __init__(self, health, lv):
         super().__init__()
         self.imgSprites=self.character_sprites()
-        self.image=self.imgSprites[random.randint(14,len(self.imgSprites)-1)]
+        self.image=self.imgSprites[random.randint(13,len(self.imgSprites)-1)]
         self.base_health=health
         self.health=health
         self.maxhealth=health
