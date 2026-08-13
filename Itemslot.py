@@ -2,7 +2,7 @@ import pygame
 class Itemslot(pygame.sprite.Sprite):
     def __init__(self,posx=0, posy=0):
         super().__init__()
-        
+
         #itemSlot soll ein Item halten können
         self.item=None
 
@@ -12,7 +12,7 @@ class Itemslot(pygame.sprite.Sprite):
         self.rect.x=posx
         self.rect.y=posy
         self._layer=1
-    
+
     def addItem(self,sprite):
         self.item=sprite
         self.item.rect=self.item.image.get_rect(center=self.rect.center)
@@ -28,7 +28,6 @@ class Itemslot(pygame.sprite.Sprite):
 
     def is_empty(self):
         return (self.item==None)
-    
 
     def move(self):
         pass

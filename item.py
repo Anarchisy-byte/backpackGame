@@ -5,8 +5,6 @@ class item(pygame.sprite.Sprite):
     
     def load_item_sprites():
         global item_sprites
-        pygame.init()
-        screen=pygame.display.set_mode((1920,1280))#, pygame.SCALED)
         itemSheet=pygame.image.load("images/Items/roguelikeitems.png").convert_alpha()
         item_texturesize=16
         for row in range(13):
@@ -50,7 +48,6 @@ class item(pygame.sprite.Sprite):
     def move(self, x,y):
         self.rect.centerx=x
         self.rect.centery=y
-        
 
     def draw(self,screen):
         screen.blit(self.image, self.rect)
@@ -68,7 +65,7 @@ class item(pygame.sprite.Sprite):
         return item.RARITY_COLORS.get(self.rarity, (255,255,255))
 
     def stats_lines(self):
-        """Item-Stats als einzelne Textzeilen, für eine strukturierte Tooltip-Anzeige."""
+        """item stats als einzelne zeilen"""
         lines=[f"{self.rarity.capitalize()} - {self.cost} Gold"]
         if self.dmgVal>0:
             lines.append(f"Schaden: {self.dmgVal}  (alle {self.atkSpeed}s)")

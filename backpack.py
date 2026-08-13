@@ -41,7 +41,7 @@ class backpack(pygame.sprite.Sprite):
             for c in range(self.colom):
                 if(self.sprites[row][c].item is None):
                     return (row,c)
-    
+
     def addItem(self,sprite):
         row,c=self.get_empty_slot()
         self.sprites[row][c].addItem(sprite)

@@ -146,10 +146,50 @@ newRound=True
 state=STATE_MENU
 dt=1/60 #sekunden seit letztem frame, für die Item-Cooldowns im Kampf
 
+#Zeitlimit: verhindert Softlock, falls keine Seite ein dmg-Item hat --
+#steht nach BATTLE_TIMEOUT Sekunden kein Sieger fest, verliert der Spieler
+battle_elapsed=0
+BATTLE_TIMEOUT=25
+
+#Rundenziel: wird diese Runde besiegt, ist das Spiel gewonnen
+WIN_ROUND=2
+
 #Menü-Buttons (unabhängig vom Spielstand, nur einmal erzeugt)
 menu_start_button=buttonGUI.buttonGUI(0, 700, 500)
 menu_quit_button=buttonGUI.buttonGUI(4, 700, 700)
 menu_font=pygame.font.Font(None, 100)
+
+#Refresh-Button: statt Sprite-Bild ein selbst gezeichneter Button mit Text + aktuellen Kosten
+refreshButtonFont=pygame.font.Font(None,28)
+
+def make_refresh_button_image(cost):
+    label=refreshButtonFont.render("Refresh",True,"black")
+    cost_label=refreshButtonFont.render(str(cost)+" Gold",True,"black")
+    padding=14
+    width=max(label.get_width(),cost_label.get_width())+padding*2
+    height=label.get_height()+cost_label.get_height()+padding*2+4
+    surf=pygame.Surface((width,height))
+    surf.fill((100,190,150))
+    pygame.draw.rect(surf,(35,95,75),surf.get_rect(),width=3,border_radius=8)
+    surf.blit(label,(width//2-label.get_width()//2,padding))
+    surf.blit(cost_label,(width//2-cost_label.get_width()//2,padding+label.get_height()+4))
+    return surf
+
+class TextButton(pygame.sprite.Sprite):
+    def __init__(self, image, posx, posy):
+        super().__init__()
+        self.image=image
+        self.rect=self.image.get_rect(topleft=(posx,posy))
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+
+    def set_image(self, image):
+        topleft=self.rect.topleft
+        self.image=image
+        self.rect=self.image.get_rect(topleft=topleft)
+
+battleTimerFont=pygame.font.Font(None,50)
 
 def load_shop(item_pools=None):
     TestShop=shop.shop(950,300)
@@ -183,6 +223,12 @@ def draw_item_tooltip(screen):
     hovered_slots=[]
     if state==STATE_SHOP and ShopSlots is not None:
         hovered_slots+=ShopSlots.get_sprites_at((x,y))
+    if state==STATE_BATTLE and enemy is not None:
+        #Gegner-Rucksack ist keine itemgroup, daher direkt über die Zellen prüfen
+        for row in enemy.backpack.sprites:
+            for slot in row:
+                if slot.rect.collidepoint(x,y):
+                    hovered_slots.append(slot)
     hovered_slots+=BackPackSlots.get_sprites_at((x,y))
 
     if not hovered_slots:
@@ -270,12 +316,13 @@ while running:
                     screen.blit(layer,(random.randint(-2,2), random.randint(-2,2)))
                 screen.blit(Background_images[-1],(0,0))
             enemy.draw(screen)
+            timer_left=max(0,BATTLE_TIMEOUT-battle_elapsed)
+            timer_surf=battleTimerFont.render(str(int(timer_left)+1),True,"white","black")
+            screen.blit(timer_surf,(1920//2-timer_surf.get_width()//2,20))
         curser.update(screen)
         BackPackSlots.draw(screen)
         screen.blit(tMoney.render("Gold:"+str(player.gold),True, "black", "white"),(10,45))
         player.draw(screen)
-
-        
 
         draw_item_tooltip(screen)
 
@@ -293,6 +340,7 @@ while running:
             player.reset_cooldowns()
             enemy.reset_cooldowns()
             newRound=False
+            battle_elapsed=0
             pygame.display.update()
             #verhindert nicht laden der sprites bei Instakill
             continue
@@ -300,13 +348,18 @@ while running:
         if dmg_dealt>0:
             print("Dmg_dealt:"+str(dmg_dealt))
             create_attack_animation(screen,(800,660),False,dmg_dealt,enemy)
-            
+
         if(enemy.health>0):
             dmg_dealt=enemy.update_combat(dt,player)
             if dmg_dealt>0:
                 print("Dmg_dealt:"+str(dmg_dealt))
                 create_attack_animation(screen,(1000,660),True,dmg_dealt,player)
-                
+
+        #Zeitlimit gegen Softlock, wenn timer auf 0 und keiner tot verliert der spieler
+        battle_elapsed+=dt
+        if battle_elapsed>=BATTLE_TIMEOUT and enemy.health>0 and player.health>0:
+            print("Zeitlimit erreicht, Spieler verliert")
+            player.health=0
 
         if(enemy.health<=0 or player.health<=0):
             print("defeated")
@@ -320,9 +373,19 @@ while running:
                         if event.type== pygame.QUIT:
                             running=False
                 state=STATE_MENU
+            elif curRound>=WIN_ROUND:
+                screen.fill("black")
+                accept.play()
+                screen.blit(menu_font.render("Sieg!", True, "white",None),(1920/2-150,300))
+                pygame.display.update()
+                while(pygame.mixer.get_busy() and running):
+                    for event in pygame.event.get():
+                        if event.type== pygame.QUIT:
+                            running=False
+                state=STATE_MENU
             else:
                 state=STATE_SHOP
-                player.gold+=10
+                player.gold+=10+curRound
                 curRound+=1
                 newRound=True
                 pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
@@ -353,6 +416,7 @@ while running:
             elif event.key == pygame.K_r:
                 if state==STATE_SHOP:
                     TestShop.refresh(player,curRound)
+                    refreshButton.set_image(make_refresh_button_image(TestShop.refresh_cost))
                     print(player.gold)
 
 
@@ -360,12 +424,12 @@ while running:
         elif event.type==BUY_PHASE_EVENT:
             if state!=STATE_BATTLE:
                 del enemy
-                startbutton=buttonGUI.buttonGUI(0, 950, 950)
-                refreshButton=buttonGUI.buttonGUI(2, 1500, 950)
-                buttons.add(startbutton)
-                buttons.add(refreshButton)
                 enemy=None
                 TestShop=load_shop()#übergabe itempool
+                startbutton=buttonGUI.buttonGUI(0, 950, 950)
+                refreshButton=TextButton(make_refresh_button_image(TestShop.refresh_cost), 1500, 950)
+                buttons.add(startbutton)
+                buttons.add(refreshButton)
                 TestShop.draw(screen)
                 ShopSlots=itemgroup()
                 ShopSlots.add(TestShop.returnItemslots())
@@ -377,7 +441,7 @@ while running:
             del startbutton
             del refreshButton
             TestShop=None
-            enemy=character.enemy(50,curRound)
+            enemy=character.enemy(50+curRound*8,curRound)
             state=STATE_BATTLE
             ...
 
@@ -403,10 +467,11 @@ while running:
 
             if not collided_slots:
                 continue
-            
+
             if (buttons.has(collided_slots[-1])):
                 if collided_slots[-1] is refreshButton:
                     TestShop.refresh(player,curRound)
+                    refreshButton.set_image(make_refresh_button_image(TestShop.refresh_cost))
                     accept.play()
                     continue
                 pygame.event.post(pygame.event.Event(ENTER_BATTLE_PHASE_EVENT))
@@ -414,11 +479,9 @@ while running:
                 continue
 
             #vorderster Slot mit Item
-            slot = collided_slots[-1]   
+            slot = collided_slots[-1]
             if slot.item is None:
                 continue
-            
-            
 
             #Unterscheiden Shop und Backpack:
             print(ShopSlots.storedItems())
@@ -449,7 +512,7 @@ while running:
                 BackPackSlots.move_to_front(slot)
                 item_to_sell = slot.item
                 player.gold += item_to_sell.cost//2
-                TestBackpack.removeItem(item_to_sell) 
+                TestBackpack.removeItem(item_to_sell)
                 del item_to_sell
                 purchaseSound.play()
                 TestBackpack.update()
