@@ -208,7 +208,7 @@ def load_shop(item_pools=None):
 def start_new_game():
     global TestBackpack, BackPackSlots, ShopSlots, TestShop, startbutton, buttons, enemy, player, curRound, newRound, state, player_lives
 
-    TestBackpack=backpack.backpack(3,2,60,420)
+    TestBackpack=backpack.backpack(4,3,60,420)
     BackPackSlots=itemgroup()
     BackPackSlots.add(TestBackpack.returnItemslots())
     ShopSlots=None
@@ -332,6 +332,7 @@ while running:
         curser.update(screen)
         BackPackSlots.draw(screen)
         screen.blit(tMoney.render("Gold:"+str(player.gold),True, "black", "white"),(10,45))
+        screen.blit(tMoney.render("Runde:"+str(curRound)+"/"+str(WIN_ROUND),True, "black", "white"),(160,45))
         for i in range(MAX_LIVES):
             heart_img=heart_full if i<player_lives else heart_empty
             screen.blit(heart_img,(10+i*(HEART_SIZE+6),78))

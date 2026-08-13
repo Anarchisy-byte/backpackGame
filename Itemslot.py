@@ -1,6 +1,6 @@
 import pygame
 class Itemslot(pygame.sprite.Sprite):
-    def __init__(self,posx=0, posy=0):
+    def __init__(self,posx=0, posy=0, size=None):
         super().__init__()
 
         #itemSlot soll ein Item halten können
@@ -8,6 +8,10 @@ class Itemslot(pygame.sprite.Sprite):
 
         #Attribute zum anzeigen lassen
         self.image=pygame.image.load("images/box/boxNormal.png")
+        if size is not None:
+            #nur der Rucksack übergibt eine Zielgröße, damit seine Slots ins
+            #(unveränderte) Rucksack-Sprite passen -- der Shop bleibt unangetastet
+            self.image=pygame.transform.smoothscale(self.image,(size,size))
         self.rect=self.image.get_rect()
         self.rect.x=posx
         self.rect.y=posy

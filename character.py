@@ -268,35 +268,37 @@ class enemy(character):
         self.lv=lv
         self.rect.x=1000
         self.rect.y=500
-        self.backpack=backpack.backpack(3,2,1300,420)
+        self.backpack=backpack.backpack(3,3,1300,420)
 
-        for arr in self.backpack.sprites:
-            for slot in arr:
-                wahl_rarity = rarity_odds.roll_rarity(self.lv)
-                pools=item_import.item_pools()
-                pool = pools.get(wahl_rarity, [])
-                if pool:
-                    data = random.choice(pool)
-                    #Erstellt ein Item-Objekt basierend auf den Daten aus dem Pool
-                    sprite_idx = int(data["sprite_id"])
-                    item_sprites=item.item.createItemSprites()
-                    img = item_sprites[sprite_idx]
-                        
-                    new_item = item.item(
-                        image=img,
-                        name = data["name"],
-                        posx=slot.rect.centerx,
-                        posy=slot.rect.centery,
-                        cost=data['cost'],
-                        rarity=data['rarity'],
-                        itemtype=data['type'],
-                        itemID=data['item_id'],
-                        dmgVal=data['attack'],
-                        defVal=data['armor'],
-                        hpVal=data['hp'],
-                        space_x=1,
-                        space_y=1,
-                        atkSpeed=data['cooldown']
-                    )
-                    slot.addItem(new_item)
+        #Gegner befüllt nicht direkt seinen ganzen Rucksack für scaling
+        slots_flat=[slot for arr in self.backpack.sprites for slot in arr]
+        num_to_fill=min(len(slots_flat), 1+2*self.lv)
+        pools=item_import.item_pools()
+        for slot in slots_flat[:num_to_fill]:
+            wahl_rarity = rarity_odds.roll_rarity(self.lv)
+            pool = pools.get(wahl_rarity, [])
+            if pool:
+                data = random.choice(pool)
+                #Erstellt ein Item-Objekt basierend auf den Daten aus dem Pool
+                sprite_idx = int(data["sprite_id"])
+                item_sprites=item.item.createItemSprites()
+                img = item_sprites[sprite_idx]
+
+                new_item = item.item(
+                    image=img,
+                    name = data["name"],
+                    posx=slot.rect.centerx,
+                    posy=slot.rect.centery,
+                    cost=data['cost'],
+                    rarity=data['rarity'],
+                    itemtype=data['type'],
+                    itemID=data['item_id'],
+                    dmgVal=data['attack'],
+                    defVal=data['armor'],
+                    hpVal=data['hp'],
+                    space_x=1,
+                    space_y=1,
+                    atkSpeed=data['cooldown']
+                )
+                slot.addItem(new_item)
     

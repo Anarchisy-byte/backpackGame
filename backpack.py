@@ -7,15 +7,22 @@ class backpack(pygame.sprite.Sprite):
 
     def __init__(self, rows, colom, posx, posy):
         super().__init__()
+        self.image=pygame.image.load("images/backpack.png")
+        self.image=pygame.transform.scale_by(self.image,(1.3,2))
+
+        #Manuelle anpassung der itemslots im Rucksack
+        abstand=110
+        box_size=110
+        left_offset=130
+        top_offset=140
+
+        self.abstand=abstand
         self.sprites=[[None for i in range(colom)] for i in range(rows)]
-        abstand=130
         self.rows=rows
         self.colom=colom
         for row in range(rows):
             for c in range(colom):
-                self.sprites[row][c]=Itemslot.Itemslot(posx+180+abstand*c,posy+140+abstand*row)
-        self.image=pygame.image.load("images/backpack.png")
-        self.image=pygame.transform.scale_by(self.image,(1.3,2))
+                self.sprites[row][c]=Itemslot.Itemslot(posx+left_offset+abstand*c,posy+top_offset+abstand*row,size=box_size)
         self.rect=self.image.get_rect()
         self.rect.x=posx
         self.rect.y=posy
@@ -44,5 +51,11 @@ class backpack(pygame.sprite.Sprite):
 
     def addItem(self,sprite):
         row,c=self.get_empty_slot()
-        self.sprites[row][c].addItem(sprite)
-        return self.sprites[row][c]
+        slot=self.sprites[row][c]
+        slot.addItem(sprite)
+        #Item-Sprite an die (ggf. kleinere) Rucksack-Slot-Größe anpassen --
+        #im Shop soll die ursprüngliche Größe erhalten bleiben, daher erst hier skalieren
+        target=int(self.abstand*0.85)
+        sprite.image=pygame.transform.smoothscale(sprite.image,(target,target))
+        sprite.rect=sprite.image.get_rect(center=slot.rect.center)
+        return slot
