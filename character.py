@@ -136,6 +136,8 @@ class character(pygame.sprite.Sprite):
         width=self.health
         if(width>150):
             width=150
+        if(width<0):
+            width=0
         height=40
         
         surf=pygame.Surface((150,height),pygame.SRCALPHA)

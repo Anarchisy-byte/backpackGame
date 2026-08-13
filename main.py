@@ -146,13 +146,22 @@ newRound=True
 state=STATE_MENU
 dt=1/60 #sekunden seit letztem frame, für die Item-Cooldowns im Kampf
 
-#Zeitlimit: verhindert Softlock, falls keine Seite ein dmg-Item hat --
-#steht nach BATTLE_TIMEOUT Sekunden kein Sieger fest, verliert der Spieler
+#Zeitlimit: verhindert Softlock, spieler verliert automatisch wenn timer abläuft
 battle_elapsed=0
 BATTLE_TIMEOUT=25
 
-#Rundenziel: wird diese Runde besiegt, ist das Spiel gewonnen
-WIN_ROUND=2
+#Rundenziel
+WIN_ROUND=15
+
+#Leben: bei Rundenverlust wird eins abgezogen, erst bei 0 ist es Game Over
+MAX_LIVES=3
+player_lives=MAX_LIVES
+
+#Herz-Icons für die Lebensanzeige: lifebar_16x16.png ist ein 2x2-Sheet
+HEART_SIZE=32
+_lifebar_sheet=pygame.image.load("images/HUD/lifebar_16x16.png").convert_alpha()
+heart_full=pygame.transform.scale(_lifebar_sheet.subsurface((0,0,16,16)),(HEART_SIZE,HEART_SIZE))
+heart_empty=pygame.transform.scale(_lifebar_sheet.subsurface((16,16,16,16)),(HEART_SIZE,HEART_SIZE))
 
 #Menü-Buttons (unabhängig vom Spielstand, nur einmal erzeugt)
 menu_start_button=buttonGUI.buttonGUI(0, 700, 500)
@@ -197,7 +206,7 @@ def load_shop(item_pools=None):
     return TestShop
 
 def start_new_game():
-    global TestBackpack, BackPackSlots, ShopSlots, TestShop, startbutton, buttons, enemy, player, curRound, newRound, state
+    global TestBackpack, BackPackSlots, ShopSlots, TestShop, startbutton, buttons, enemy, player, curRound, newRound, state, player_lives
 
     TestBackpack=backpack.backpack(3,2,60,420)
     BackPackSlots=itemgroup()
@@ -211,6 +220,7 @@ def start_new_game():
     player=character.player(50,1,10, TestBackpack)
     curRound=1
     newRound=True
+    player_lives=MAX_LIVES
 
     state=STATE_SHOP
     pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
@@ -322,6 +332,9 @@ while running:
         curser.update(screen)
         BackPackSlots.draw(screen)
         screen.blit(tMoney.render("Gold:"+str(player.gold),True, "black", "white"),(10,45))
+        for i in range(MAX_LIVES):
+            heart_img=heart_full if i<player_lives else heart_empty
+            screen.blit(heart_img,(10+i*(HEART_SIZE+6),78))
         player.draw(screen)
 
         draw_item_tooltip(screen)
@@ -364,15 +377,24 @@ while running:
         if(enemy.health<=0 or player.health<=0):
             print("defeated")
             if(player.health<=0):
-                screen.fill("black")
-                gameOverSound.play()
-                screen.blit(menu_font.render("Game Over", True, "white",None),(1920/2-250,300))
-                pygame.display.update()
-                while(pygame.mixer.get_busy() and running):
-                    for event in pygame.event.get():
-                        if event.type== pygame.QUIT:
-                            running=False
-                state=STATE_MENU
+                player_lives-=1
+                if player_lives<=0:
+                    screen.fill("black")
+                    gameOverSound.play()
+                    screen.blit(menu_font.render("Game Over", True, "white",None),(1920/2-250,300))
+                    pygame.display.update()
+                    while(pygame.mixer.get_busy() and running):
+                        for event in pygame.event.get():
+                            if event.type== pygame.QUIT:
+                                running=False
+                    state=STATE_MENU
+                else:
+                    #Leben verloren, aber noch nicht Game Over -> zurück in den Shop, gleiche Runde
+                    player.health=player.maxhealth
+                    state=STATE_SHOP
+                    player.gold+=10+curRound
+                    newRound=True
+                    pygame.event.post(pygame.event.Event(BUY_PHASE_EVENT))
             elif curRound>=WIN_ROUND:
                 screen.fill("black")
                 accept.play()
