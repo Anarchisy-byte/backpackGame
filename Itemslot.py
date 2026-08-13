@@ -5,12 +5,12 @@ class Itemslot(pygame.sprite.Sprite):
 
         #itemSlot soll ein Item halten können
         self.item=None
+        #Gesperrte Slots werden im Shop bei einem Refresh nicht neu befüllt
+        self.locked=False
 
         #Attribute zum anzeigen lassen
         self.image=pygame.image.load("images/box/boxNormal.png")
         if size is not None:
-            #nur der Rucksack übergibt eine Zielgröße, damit seine Slots ins
-            #(unveränderte) Rucksack-Sprite passen -- der Shop bleibt unangetastet
             self.image=pygame.transform.smoothscale(self.image,(size,size))
         self.rect=self.image.get_rect()
         self.rect.x=posx
@@ -23,6 +23,12 @@ class Itemslot(pygame.sprite.Sprite):
 
     def removeItem(self):
         self.item=None
+        self.locked=False
+
+    def toggle_lock(self):
+        #nur ein Slot mit Item kann gesperrt werden
+        if self.checkItem():
+            self.locked=not self.locked
 
 #zwei Mal selbe Methode --> korregiere später
     def checkItem(self):
@@ -44,8 +50,11 @@ class Itemslot(pygame.sprite.Sprite):
     def buyItem(self):
         item=self.item
         self.item=None
+        self.locked=False
 
     def draw(self,screen):
         screen.blit(self.image,self.rect)
         if (self.checkItem()):
             screen.blit(self.item.image, self.item.rect)
+        if self.locked:
+            pygame.draw.rect(screen,(255,215,0),self.rect,width=4)

@@ -114,9 +114,18 @@ Background_images.append(img)
 background_last_update=0
 background_update_delay=200
 
-#Shop-Hintergrund (einmalig laden statt jeden Frame)
-shop_background_img=pygame.image.load("images/background/shop_Background.jpeg")
-shop_background_img=pygame.transform.scale_by(shop_background_img,3)
+#Shop-Hintergrund
+def load_cover_background(path, target_w, target_h):
+    img=pygame.image.load(path).convert_alpha()
+    iw,ih=img.get_size()
+    scale=max(target_w/iw, target_h/ih)
+    new_w,new_h=int(iw*scale),int(ih*scale)
+    img=pygame.transform.smoothscale(img,(new_w,new_h))
+    x=(new_w-target_w)//2
+    y=(new_h-target_h)//2
+    return img.subsurface((x,y,target_w,target_h)).copy()
+
+shop_background_img=load_cover_background("images/shop.jpg",1920,1280)
 
 #Attack-Animation Frames (einmalig laden statt bei jedem Angriff)
 attack_frameSheet=pygame.image.load("images/character/pixel_art_sword_slash_sprites.png")
@@ -201,7 +210,7 @@ class TextButton(pygame.sprite.Sprite):
 battleTimerFont=pygame.font.Font(None,50)
 
 def load_shop(item_pools=None):
-    TestShop=shop.shop(950,300)
+    TestShop=shop.shop()
     TestShop.refresh(player,curRound,item_pools)
     return TestShop
 
@@ -227,6 +236,33 @@ def start_new_game():
 
 itemNameFont=pygame.font.Font(None,26)
 itemStatsFont=pygame.font.Font(None,20)
+
+controlsFont=pygame.font.Font(None,22)
+CONTROLS_TEXT=[
+    "Steuerung",
+    "Linksklick: Kaufen/Verkaufen",
+    "Rechtsklick: Item sperren",
+    "R: Shop refreshen",
+    "+/-: Lautstärke, M: Stumm",
+]
+
+def draw_controls(screen):
+    line_gap=4
+    padding=10
+    line_surfs=[controlsFont.render(line,True,"white") for line in CONTROLS_TEXT]
+    width=max(s.get_width() for s in line_surfs)+padding*2
+    height=sum(s.get_height()+line_gap for s in line_surfs)+padding*2
+
+    box=pygame.Surface((width,height),pygame.SRCALPHA)
+    box.fill((20,20,20,200))
+    pygame.draw.rect(box,(200,200,200),box.get_rect(),width=2)
+
+    cursor_y=padding
+    for s in line_surfs:
+        box.blit(s,(padding,cursor_y))
+        cursor_y+=s.get_height()+line_gap
+
+    screen.blit(box,(1920-width-20,20))
 
 def draw_item_tooltip(screen):
     x,y=pygame.mouse.get_pos()
@@ -316,6 +352,7 @@ while running:
             TestShop.draw(screen)
             startbutton.draw(screen)
             refreshButton.draw(screen)
+            draw_controls(screen)
 
         elif state==STATE_BATTLE and enemy is not None:
             background_new_update=pygame.time.get_ticks()
@@ -538,6 +575,12 @@ while running:
                 del item_to_sell
                 purchaseSound.play()
                 TestBackpack.update()
+
+        #Rechtsklick im Shop sperrt/entsperrt ein Item 
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button==3 and state==STATE_SHOP:
+            if ShopSlots is not None:
+                for slot in ShopSlots.get_sprites_at((x,y)):
+                    slot.toggle_lock()
 
     pygame.display.update()
 

@@ -7,20 +7,22 @@ import rarity_odds
 
 class shop(pygame.sprite.Sprite):
 
-    def __init__(self, posx, posy, listItemSlots=[Itemslot() for i in range(5)]):
+    def __init__(self, listItemSlots=None):
         super().__init__()
+        if listItemSlots is None:
+            listItemSlots=[Itemslot() for i in range(5)]
         self.listItemSlots=listItemSlots
-        self.image=pygame.image.load("images/shop.jpg")
-        self.image=pygame.transform.smoothscale_by(self.image,(0.1,0.1))
-        self.rect=self.image.get_rect()
-        self.rect.x=posx
-        self.rect.y=posy
 
-        #Positionierung der Itemslots
-        abstand=120
-        for i,itemSlot in enumerate(self.listItemSlots):
-            itemSlot.rect.x=posx +i*abstand
-            itemSlot.rect.y=posy
+        #parameter für itemboxen im shop
+        top_y=270
+        bottom_y=420
+        top_x=[1270,1440,1610]
+        bottom_x=[1355,1525]
+        positions=[(top_x[0],top_y),(top_x[1],top_y),(top_x[2],top_y),
+                   (bottom_x[0],bottom_y),(bottom_x[1],bottom_y)]
+        for slot,(x,y) in zip(self.listItemSlots,positions):
+            slot.rect.centerx=x
+            slot.rect.centery=y
 
         self.item_sprites = item.createItemSprites()
         self.refresh_cost=0
@@ -62,22 +64,17 @@ class shop(pygame.sprite.Sprite):
                     slot.addItem(new_item)
 
     def refresh(self, player, curRound, pools=None):
-        """Leert den Shop und befüllt ihn neu"""
+        """Leert den Shop und befüllt ihn neu, gesperrte Slots bleiben erhalten"""
         if player.gold >= self.refresh_cost:
             player.gold -= self.refresh_cost
             self.refresh_cost+=1
             for slot in self.listItemSlots:
-                slot.removeItem() # Slot leeren
+                if not slot.locked:
+                    slot.removeItem() 
             self.fillRandomItem(curRound,pools=pools)
             return True
         return False
-    """
-    def fillItem(self, indexSlot, item):
-        self.listItemSlots[indexSlot].addItem(item)
 
-        maybe später um items zu locken
-        """
     def draw(self,screen):
-        screen.blit(self.image,self.rect)
         for item_Slot in self.listItemSlots:
             item_Slot.draw(screen)

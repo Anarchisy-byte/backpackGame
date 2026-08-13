@@ -30,6 +30,9 @@ class character(pygame.sprite.Sprite):
         img=pygame.Rect(16,206, 51, 53)
         sprite_img=Sheet.subsurface(img)
         sprite_img=pygame.transform.scale_by(sprite_img,8)
+        #dieser Sprite schaut im Original nach links, alle anderen Spieler-Posen
+        #nach rechts -- spiegeln, damit die Blickrichtung konsistent ist
+        sprite_img=pygame.transform.flip(sprite_img,True,False)
         imgSprites.append(sprite_img)
         img=pygame.Rect(89,209, 35, 48)
         sprite_img=Sheet.subsurface(img)
@@ -253,7 +256,6 @@ class player(character):
 
     def __init__(self, health, lv, gold, backpack):
         super().__init__()
-        self.imgSprites=self.character_sprites()
         self.image=self.imgSprites[random.randint(0,13)]
         self.base_health=health
         self.health=health
@@ -267,7 +269,6 @@ class player(character):
 class enemy(character):
     def __init__(self, health, lv):
         super().__init__()
-        self.imgSprites=self.character_sprites()
         self.image=self.imgSprites[random.randint(14,len(self.imgSprites)-1)]
         self.base_health=health
         self.health=health
