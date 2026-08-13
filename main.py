@@ -147,6 +147,7 @@ TestBackpack=None
 BackPackSlots=None
 ShopSlots=None
 TestShop=None
+savedShopSlots=None
 startbutton=None
 refreshButton=None
 buttons=None
@@ -212,19 +213,20 @@ class TextButton(pygame.sprite.Sprite):
 
 battleTimerFont=pygame.font.Font(None,50)
 
-def load_shop(item_pools=None):
-    TestShop=shop.shop()
+def load_shop(item_pools=None, listItemSlots=None):
+    TestShop=shop.shop(listItemSlots)
     TestShop.refresh(player,curRound,item_pools)
     return TestShop
 
 def start_new_game():
-    global TestBackpack, BackPackSlots, ShopSlots, TestShop, startbutton, buttons, enemy, player, curRound, newRound, state, player_lives
+    global TestBackpack, BackPackSlots, ShopSlots, TestShop, savedShopSlots, startbutton, buttons, enemy, player, curRound, newRound, state, player_lives
 
     TestBackpack=backpack.backpack(4,3,60,420)
     BackPackSlots=itemgroup()
     BackPackSlots.add(TestBackpack.returnItemslots())
     ShopSlots=None
     TestShop=None
+    savedShopSlots=None
     startbutton=buttonGUI.buttonGUI(0, 1000, 950)
     buttons=itemgroup()
     buttons.add(startbutton)
@@ -495,7 +497,8 @@ while running:
             if state!=STATE_BATTLE:
                 del enemy
                 enemy=None
-                TestShop=load_shop()#übergabe itempool
+                TestShop=load_shop(listItemSlots=savedShopSlots)#übergabe itempool
+                savedShopSlots=None
                 startbutton=buttonGUI.buttonGUI(0, 950, 950)
                 refreshButton=TextButton(make_refresh_button_image(TestShop.refresh_cost), 1500, 950)
                 buttons.add(startbutton)
@@ -507,6 +510,7 @@ while running:
                 print("in battle")
 
         elif event.type==ENTER_BATTLE_PHASE_EVENT:
+            savedShopSlots=TestShop.listItemSlots
             del TestShop
             del startbutton
             del refreshButton
