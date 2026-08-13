@@ -1,15 +1,15 @@
 # BackPack Game
 
 EiP Projekt in Python über ein Backpackgame:
-Das Spiel handelt vom Player der mit seinem Backpack in gefährliches Abenteuer zieht. Um zu Überleben muss er sich immer stärkere Items aus dem lokalen Shop holen. Bei jedem Kampf gewinnt er Gold und handelt anschließend mit dem Shop. Da ein erneuter Aufbruch, ohne neue Items zu holen, zu gefährlich ist.
+Das Spiel handelt vom Player, der mit seinem Backpack, in ein gefährliches Abenteuer zieht. Um zu Überleben, muss er sich immer stärkere Items aus dem lokalen Shop holen. Bei jedem Kampf gewinnt er Gold und handelt anschließend mit dem Shop, da ein erneuter Aufbruch, ohne neue Items zu holen, zu gefährlich ist.
 Der Player hat sein Abentuer abgeschlossen, sobald er 15 Gegner besiegt hat. Nach jeder Niederlage verliert der Player eins seiner drei Leben und kehrt zum Shop zurück.
 
 Steuerung:
-M - schaltet Musik stumm/entstummt
-+ - Musik wird lauter
+- M schaltet Musik stumm/entstummt
+- + Musik wird lauter
 - - Musik wird leiser
-r - Refresh der Items im Shop
-Linksklick - Kaufen der Items im Shop/ Verkaufen der Items aus dem Rucksack
+- r Refresh der Items im Shop
+- Linksklick Kaufen der Items im Shop/ Verkaufen der Items aus dem Rucksack
 
 
 
