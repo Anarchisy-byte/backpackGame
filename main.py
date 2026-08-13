@@ -96,6 +96,9 @@ meleeSounds=[]
 meleeSounds.append(pygame.mixer.Sound("sounds/melee sounds/animal melee sound.wav"))
 meleeSounds.append(pygame.mixer.Sound("sounds/melee sounds/melee sound.wav"))
 meleeSounds.append(pygame.mixer.Sound("sounds/melee sounds/sword sound.wav"))
+allSounds = [purchaseSound, accept, gameOverSound] + meleeSounds
+for s in allSounds:
+    s.set_volume(vol)
 
 #Background_images
 Background_images=[]
@@ -460,18 +463,26 @@ while running:
             if event.key == pygame.K_m:
                 if pygame.mixer.music.get_volume()==0:
                     pygame.mixer.music.set_volume(vol)
+                    for s in allSounds:
+                        s.set_volume(vol)
                 else:
                     pygame.mixer.music.set_volume(0)
+                    for s in allSounds:
+                        s.set_volume(0)
             elif event.key == pygame.K_PLUS:
                 vol+=0.1
                 if(vol>1):
                     vol=1
                 pygame.mixer.music.set_volume(vol)
+                for s in allSounds:
+                    s.set_volume(vol)
             elif event.key == pygame.K_MINUS:
                 vol-=0.1
                 if(vol<0):
                     vol=0
                 pygame.mixer.music.set_volume(vol)
+                for s in allSounds:
+                    s.set_volume(vol)
             elif event.key == pygame.K_r:
                 if state==STATE_SHOP:
                     TestShop.refresh(player,curRound)
