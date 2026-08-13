@@ -234,7 +234,6 @@ def draw_item_tooltip(screen):
     if state==STATE_SHOP and ShopSlots is not None:
         hovered_slots+=ShopSlots.get_sprites_at((x,y))
     if state==STATE_BATTLE and enemy is not None:
-        #Gegner-Rucksack ist keine itemgroup, daher direkt über die Zellen prüfen
         for row in enemy.backpack.sprites:
             for slot in row:
                 if slot.rect.collidepoint(x,y):

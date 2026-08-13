@@ -186,31 +186,38 @@ class character(pygame.sprite.Sprite):
                     itemslot.item.cooldown=itemslot.item.atkSpeed
 
     def update_combat(self, dt, gegner):
-        """Zählt den Cooldown jedes Items runter und greift bei null an."""
+        """Zählt den Cooldown jedes Items runter; bei 0 greift es an und/oder
+        regeneriert seinen Rüstungswert"""
         dmg_total=0
         for slot in self.backpack.sprites:
             for itemslot in slot:
                 item=itemslot.item
                 if item is None:
                     continue
-                #reine rüstungs und hp items werden ignoriert
-                if item.dmgVal<=0:
+                if item.dmgVal<=0 and item.defVal<=0:
                     continue
+
                 item.cooldown-=dt
                 if item.cooldown>0:
                     continue
-                dmg=item.dmgVal
-                if(gegner.armor>0):
-                    if(dmg>gegner.armor):
-                        overflow=dmg-gegner.armor
-                        gegner.armor=0
-                        gegner.health-=overflow
+
+                if item.dmgVal>0:
+                    dmg=item.dmgVal
+                    if(gegner.armor>0):
+                        if(dmg>gegner.armor):
+                            overflow=dmg-gegner.armor
+                            gegner.armor=0
+                            gegner.health-=overflow
+                        else:
+                            gegner.armor-=dmg
                     else:
-                        gegner.armor-=dmg
-                else:
-                    gegner.health-=dmg
-                dmg_total+=dmg
-                
+                        gegner.health-=dmg
+                    dmg_total+=dmg
+
+                if item.defVal>0:
+                    #flat-rüstung wird nach cd regeniert
+                    self.armor+=item.defVal
+
                 item.cooldown+=item.atkSpeed
                 if gegner.health<=0:
                     return dmg_total
