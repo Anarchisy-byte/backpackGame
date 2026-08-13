@@ -6,8 +6,8 @@ Der Player hat sein Abentuer abgeschlossen, sobald er 15 Gegner besiegt hat. Nac
 
 Steuerung:
 - M schaltet Musik stumm/entstummt
-- + Musik wird lauter
-- - Musik wird leiser
+- plus-Taste Musik wird lauter
+- minus-Taste Musik wird leiser
 - r Refresh der Items im Shop
 - Linksklick Kaufen der Items im Shop/ Verkaufen der Items aus dem Rucksack
 
