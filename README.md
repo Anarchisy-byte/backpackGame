@@ -10,7 +10,7 @@ Steuerung:
 - minus-Taste Musik wird leiser
 - r Refresh der Items im Shop
 - Linksklick Kaufen der Items im Shop/ Verkaufen der Items aus dem Rucksack
-
+- rechtsklick locken eines Items im Shop
 
 
 Bildquellen:
